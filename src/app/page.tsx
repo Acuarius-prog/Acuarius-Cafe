@@ -1,5 +1,5 @@
 import Nav from "@/components/Nav";
-import Menu from "@/components/Menu";
+import MenuBlock from "@/components/MenuBlock";
 import FlowMatch from "@/components/FlowMatch";
 
 export const dynamic = "force-dynamic";
@@ -46,18 +46,9 @@ export default function Home() {
             <div className="section-head">
               <span className="eyebrow">La carta</span>
               <h2>Una barra, seis mundos por explorar</h2>
-              <p>Cada categoría tiene su propio carácter. Explora nuestra carta completa, siempre fresca.</p>
+              <p>Toca una categoría para filtrar, arma tu pedido y envíalo.</p>
             </div>
-            <div className="cards6">
-              <article className="ccard"><h3>Cafés de origen</h3><p>Espresso, filtrados, cold brew y clásicos de la casa.</p></article>
-              <article className="ccard"><h3>Tés &amp; infusiones</h3><p>Hoja entera, matcha e infusiones botánicas.</p></article>
-              <article className="ccard"><h3>Jugos naturales</h3><p>Prensados en frío del día. Verdes, cítricos y de temporada.</p></article>
-              <article className="ccard"><h3>Postres de autor</h3><p>Cheesecakes, tortas y dulces de repostería propia.</p></article>
-              <article className="ccard"><h3>Coctelería</h3><p>Clásicos y creaciones de barra, con y sin alcohol.</p></article>
-              <article className="ccard"><h3>Cerveza artesanal</h3><p>Rotativo de barril y botella de cervecerías locales.</p></article>
-            </div>
-            {/* Carta completa (desde Supabase) */}
-            <Menu />
+            <MenuBlock />
           </div>
         </section>
 
