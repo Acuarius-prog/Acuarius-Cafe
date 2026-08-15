@@ -25,6 +25,7 @@ export default function Nav() {
           <a href="#menu" onClick={close}>Menú</a>
           <a href="#flowmatch" onClick={close}>Flow Match</a>
           <a href="#programa" onClick={close}>Programa Flow</a>
+          <a href="/flow" onClick={close}>Mi Flow</a>
           <a href="#reservas" onClick={close}>Reservas</a>
           <a href="#tienda" onClick={close}>Tienda</a>
           <a href="#visitanos" onClick={close}>Visítanos</a>

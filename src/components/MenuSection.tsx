@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 type Category = { id: string; name: string; slug?: string };
@@ -35,6 +35,8 @@ export default function MenuSection({
 }) {
   const [supabase] = useState(() => createClient(supabaseUrl, supabaseKey));
   const [active, setActive] = useState<string>("all");
+  const [flowUserId, setFlowUserId] = useState<string | null>(null);
+  const [flowName, setFlowName] = useState<string>("");
   const [cart, setCart] = useState<Record<string, Line>>({});
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -44,6 +46,17 @@ export default function MenuSection({
   const [sending, setSending] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (data.user) {
+        setFlowUserId(data.user.id);
+        const { data: prof } = await supabase.from("profiles").select("full_name").eq("id", data.user.id).single();
+        const nm = (prof as { full_name: string | null } | null)?.full_name;
+        if (nm) setName(nm);
+      }
+    });
+  }, [supabase]);
 
   const lines = Object.values(cart);
   const count = lines.reduce((a, l) => a + l.qty, 0);
@@ -90,6 +103,7 @@ export default function MenuSection({
       p_customer: { name, phone },
       p_notes: gnote,
       p_table: table ?? null,
+      p_user: flowUserId ?? null,
       p_items: lines.map((l) => ({
         menu_item_id: l.item.id,
         name: l.item.name,
@@ -118,6 +132,7 @@ export default function MenuSection({
   return (
     <>
       {table ? <div className="mesa-chip">📍 Estás en la <b>Mesa {table}</b> · pide desde aquí</div> : null}
+      {flowUserId ? <div className="flow-chip">✓ Estás ganando <b>puntos Flow</b> con este pedido</div> : null}
 
       {/* Tarjetas de categoría (clicables) */}
       <div className="cat-cards">
