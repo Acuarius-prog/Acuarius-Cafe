@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 type Category = { id: string; name: string };
-type MenuItem = { id: string; name: string; description: string | null; price: number; cost: number; featured: boolean; active: boolean; category_id: string | null };
+type MenuItem = { id: string; name: string; description: string | null; price: number; cost: number; featured: boolean; active: boolean; category_id: string | null; image_url: string | null };
 type OrderItem = { id: string; name: string; quantity: number; unit_price: number; subtotal: number; note: string | null; menu_item_id: string | null };
 type Order = { id: string; channel: string; status: string; total: number; table_number: number | null; notes: string | null; created_at: string; order_items: OrderItem[] };
 type Inv = { id: string; name: string; category: string | null; unit: string | null; stock: number; min_stock: number };
@@ -38,7 +38,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
   const loadAll = useCallback(async () => {
     const [c, i, o, iv, r, cl] = await Promise.all([
       supabase.from("menu_categories").select("id,name").order("sort_order"),
-      supabase.from("menu_items").select("id,name,description,price,cost,featured,active,category_id").order("name"),
+      supabase.from("menu_items").select("id,name,description,price,cost,featured,active,category_id,image_url").order("name"),
       supabase.from("orders").select("id,channel,status,total,table_number,notes,created_at,order_items(id,name,quantity,unit_price,subtotal,note,menu_item_id)").order("created_at", { ascending: false }).limit(200),
       supabase.from("inventory").select("*").order("name"),
       supabase.from("reservations").select("id,party_size,reserved_at,status,notes,reservation_zones(name)").order("reserved_at", { ascending: false }).limit(100),
@@ -95,6 +95,19 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     const { error } = await supabase.from("menu_items").delete().eq("id", it.id);
     if (error) { flash("Error: " + error.message); return; }
     flash("Eliminado"); await loadAll();
+  };
+
+  const uploadPhoto = async (it: MenuItem, file: File) => {
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const path = it.id + "." + ext;
+    const { error: upErr } = await supabase.storage.from("menu-images").upload(path, file, { upsert: true, cacheControl: "3600" });
+    if (upErr) { flash("No se pudo subir: " + upErr.message); return; }
+    const { data: pub } = supabase.storage.from("menu-images").getPublicUrl(path);
+    const url = pub.publicUrl + "?v=" + Date.now();
+    const { error } = await supabase.from("menu_items").update({ image_url: url }).eq("id", it.id);
+    if (error) { flash("Error: " + error.message); return; }
+    patchItem(it.id, { image_url: url });
+    flash("Foto actualizada");
   };
 
   const advanceOrder = async (o: Order) => {
@@ -275,6 +288,10 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
                     <input className="am-in am-price" type="number" value={it.cost} onChange={(e) => patchItem(it.id, { cost: Number(e.target.value) })} />
                     <span className={"margin" + (m < 30 ? " low" : "")}>{m}%</span>
                     <div className="am-actions">
+                      {it.image_url ? <img className="am-thumb" src={it.image_url} alt="" /> : <span className="am-thumb empty">📷</span>}
+                      <label className="admin-btn sm am-photo">Foto
+                        <input type="file" accept="image/*" hidden onChange={(e) => { const fl = e.target.files; if (fl && fl[0]) uploadPhoto(it, fl[0]); }} />
+                      </label>
                       <button className={"am-toggle" + (it.active ? " on" : "")} onClick={() => toggleItem(it, "active")} title="Activo"><i></i></button>
                       <button className={"am-toggle gold" + (it.featured ? " on" : "")} onClick={() => toggleItem(it, "featured")} title="Favorito"><i></i></button>
                       <button className="admin-btn sm" onClick={() => saveItem(it)}>Guardar</button>

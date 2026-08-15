@@ -16,7 +16,7 @@ export default async function MenuBlock({ table }: { table?: number | null }) {
 
   const [{ data: categories }, { data: items }] = await Promise.all([
     supabase.from("menu_categories").select("id,name,slug,sort_order").eq("active", true).order("sort_order"),
-    supabase.from("menu_items").select("id,name,description,price,featured,category_id").eq("active", true).order("name"),
+    supabase.from("menu_items").select("id,name,description,price,featured,category_id,image_url").eq("active", true).order("name"),
   ]);
 
   if (!categories || !items || items.length === 0) {

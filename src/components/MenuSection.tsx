@@ -10,6 +10,7 @@ type Item = {
   price: number;
   featured: boolean;
   category_id: string | null;
+  image_url: string | null;
 };
 type Line = { item: Item; qty: number; note: string };
 
@@ -164,16 +165,21 @@ export default function MenuSection({
       {/* Lista de productos filtrada */}
       <div className="prod-list">
         {filtered.map((it) => (
-          <article key={it.id} className={"prod-row" + (it.featured ? " feat" : "")}>
-            <div className="prod-info">
-              <h4>
-                {it.name}
-                {it.featured && <span className="badge">Favorito</span>}
-              </h4>
+          <article key={it.id} className={"prod-card" + (it.featured ? " feat" : "")}>
+            {it.image_url && (
+              <div className="pc-photo">
+                <img src={it.image_url} alt={it.name} loading="lazy" />
+                {it.featured && <span className="pc-badge">Favorito</span>}
+              </div>
+            )}
+            <div className="pc-body">
+              <h4>{!it.image_url && it.featured ? <span className="badge">Favorito</span> : null}{it.name}</h4>
               {it.description && <p>{it.description}</p>}
-              <span className="prod-price">{cop(Number(it.price))}</span>
+              <div className="pc-foot">
+                <span className="prod-price">{cop(Number(it.price))}</span>
+                <button className="prod-add" onClick={() => add(it)} aria-label={"Agregar " + it.name}>+</button>
+              </div>
             </div>
-            <button className="prod-add" onClick={() => add(it)} aria-label={"Agregar " + it.name}>+</button>
           </article>
         ))}
       </div>

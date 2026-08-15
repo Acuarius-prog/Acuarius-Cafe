@@ -209,7 +209,7 @@ export default async function Home({
           </div>
           <div className="foot-bottom">
             <span>© 2026 Acuarius Café &amp; Sabores. Todos los derechos reservados.</span>
-            <span>Desarrollada por Maxik-IA Technology</span>
+            <span className="credit"><img src="/maxikia.png" alt="Maxik-IA Technology" className="credit-logo" /> Desarrollada por <b>Maxik-IA Technology</b></span>
           </div>
         </div>
       </footer>

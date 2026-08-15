@@ -17,7 +17,7 @@ export default function Nav() {
   return (
     <header className={"nav" + (scrolled ? " scrolled" : "")}>
       <div className="wrap nav-inner">
-        <a className="brand" href="#top" aria-label="Acuarius, inicio">
+        <a className="brand brand-lg" href="#top" aria-label="Acuarius Café y Sabores, inicio">
           <span className="mark">Acuarius</span>
           <span className="sub">Café &amp; Sabores</span>
         </a>
