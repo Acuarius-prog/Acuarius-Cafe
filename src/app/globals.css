@@ -592,9 +592,9 @@
 @media (max-width:680px){.brand-lg{margin-right:0}.brand-lg .mark{font-size:1.6rem}.brand-lg .sub{display:none}}
 
 /* ============ Crédito Maxik-IA en el pie ============ */
-.credit{display:inline-flex;align-items:center;gap:.55em}
-.credit-logo{width:26px;height:26px;object-fit:contain;border-radius:6px;background:#0b1b2b;padding:2px}
-.credit b{color:#cdddE6;font-weight:600}
+.credit{display:inline-flex;align-items:center;gap:.6em}
+.credit-logo{height:34px;width:auto;object-fit:contain;border-radius:8px;background:#fff;padding:4px 6px}
+.credit b{color:#eaf1f6;font-weight:700}
 
 /* ============ Carta estilo catálogo (con foto) ============ */
 .prod-list{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))!important}
@@ -633,3 +633,18 @@
 .reserva-form.done h3{font-family:var(--font-playfair),serif;font-size:1.6rem;margin-bottom:8px}
 .reserva-form.done p{color:var(--muted);margin-bottom:18px}
 @media (max-width:820px){.reserva-grid2{grid-template-columns:1fr;gap:26px}.rf-grid{grid-template-columns:1fr 1fr}}
+
+/* ============ Admin: marca con logo + crédito Maxik-IA ============ */
+.adm-brand2{display:flex;align-items:center;gap:10px;padding:4px 8px 18px}
+.adm-brand2.center{justify-content:center;padding:0 0 8px}
+.adm-logo{width:42px;height:42px;border-radius:10px;object-fit:cover;flex:none}
+.adm-brandtxt{display:flex;flex-direction:column;line-height:1.1}
+.adm-brand2 .am-mark{font-size:1.35rem}
+.adm-brand2 .am-sub{font-size:.56rem;letter-spacing:.24em}
+.adm-credit{display:flex;align-items:center;gap:9px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)}
+.adm-credit img{height:30px;width:auto;background:#fff;border-radius:7px;padding:3px 5px}
+.adm-credit span{font-size:.68rem;color:#9fb9c6;line-height:1.25}
+.adm-credit b{color:#cddbe4}
+/* login: marca oscura sobre fondo claro */
+.admin-login .adm-brand2 .am-mark{color:var(--ink)}
+.admin-login .adm-brand2 .am-sub{color:var(--olive)}

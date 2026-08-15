@@ -12,6 +12,7 @@ type Reservation = { id: string; party_size: number; reserved_at: string; status
 type Client = { id: string; full_name: string | null; role: string; flow_points: number; flow_tier: string };
 type Product = { id: string; name: string; description: string | null; price: number; stock: number; active: boolean; image_url: string | null };
 type ResZone = { id: string; name: string; capacity: number; active: boolean; image_url: string | null };
+type AdminUser = { id: string; full_name: string | null; role: string; email: string };
 
 const cop = (n: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(n || 0);
 const ORDER_STATES = ["nuevo", "preparacion", "listo", "entregado"];
@@ -34,6 +35,8 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
   const [zones, setZones] = useState<ResZone[]>([]);
   const [pName, setPName] = useState(""); const [pPrice, setPPrice] = useState(""); const [pStock, setPStock] = useState(""); const [pDesc, setPDesc] = useState("");
   const [zName, setZName] = useState(""); const [zCap, setZCap] = useState("");
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [newAdminEmail, setNewAdminEmail] = useState("");
   const [nName, setNName] = useState(""); const [nCat, setNCat] = useState("");
   const [nPrice, setNPrice] = useState(""); const [nCost, setNCost] = useState(""); const [nDesc, setNDesc] = useState("");
   const [iName, setIName] = useState(""); const [iStock, setIStock] = useState(""); const [iMin, setIMin] = useState(""); const [iUnit, setIUnit] = useState("unid.");
@@ -56,6 +59,8 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     ]);
     setProducts((pr.data as Product[]) ?? []);
     setZones((zn.data as ResZone[]) ?? []);
+    const { data: us } = await supabase.rpc("list_users");
+    setUsers((us as AdminUser[]) ?? []);
     setCategories((c.data as Category[]) ?? []);
     setItems((i.data as MenuItem[]) ?? []);
     setOrders((o.data as unknown as Order[]) ?? []);
@@ -155,6 +160,21 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
   const removeZone = async (x: ResZone) => { if (!confirm("¿Eliminar \"" + x.name + "\"?")) return; await supabase.from("reservation_zones").delete().eq("id", x.id); flash("Eliminado"); await loadAll(); };
   const uploadZonePhoto = async (x: ResZone, file: File) => { const url = await uploadImage("product-images", "zona-" + x.id, file); if (!url) return; await supabase.from("reservation_zones").update({ image_url: url }).eq("id", x.id); patchZone(x.id, { image_url: url }); flash("Foto actualizada"); };
 
+  const setRoleFor = async (email: string, newRole: string) => {
+    const { data, error } = await supabase.rpc("set_user_role", { p_email: email, p_role: newRole });
+    if (error) { flash("Error: " + error.message); return; }
+    const res = data as { ok: boolean; error?: string };
+    if (!res.ok) { flash(res.error || "No se pudo cambiar el rol."); return; }
+    flash("Rol actualizado ✓");
+    const { data: us } = await supabase.rpc("list_users");
+    setUsers((us as AdminUser[]) ?? []);
+  };
+  const addAdminByEmail = async () => {
+    if (!newAdminEmail.trim()) { flash("Escribe el correo."); return; }
+    await setRoleFor(newAdminEmail.trim(), "admin");
+    setNewAdminEmail("");
+  };
+
   const advanceOrder = async (o: Order) => {
     const i = ORDER_STATES.indexOf(o.status);
     if (i < 0 || i >= ORDER_STATES.length - 1) return;
@@ -186,7 +206,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
 
   if (!userEmail) return (
     <div className="admin-shell"><div className="admin-login">
-      <div className="admin-brand"><span className="am-mark">Acuarius</span><span className="am-sub">Admin</span></div>
+      <div className="adm-brand2 center"><img src="/logo.jpg" alt="Acuarius" className="adm-logo" /><div className="adm-brandtxt"><span className="am-mark">Acuarius</span><span className="am-sub">Café &amp; Sabores</span></div></div>
       <h1 className="admin-h">Ingresa a tu panel</h1>
       <form onSubmit={login} className="admin-form">
         <label>Correo<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
@@ -242,13 +262,17 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     { id: "tienda", label: "Tienda", badge: 0 },
     { id: "zonas", label: "Zonas", badge: 0 },
     { id: "clientes", label: "Clientes", badge: 0 },
+    { id: "admins", label: "Administradores", badge: 0 },
   ];
   const fmtDate = (s: string) => new Date(s).toLocaleString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className="adm-shell">
       <aside className="adm-side">
-        <div className="admin-brand" style={{ padding: "4px 8px 18px" }}><span className="am-mark">Acuarius</span><span className="am-sub">Admin</span></div>
+        <div className="adm-brand2">
+          <img src="/logo.jpg" alt="Acuarius" className="adm-logo" />
+          <div className="adm-brandtxt"><span className="am-mark">Acuarius</span><span className="am-sub">Café &amp; Sabores</span></div>
+        </div>
         <nav className="adm-nav">
           {NAV.map((n) => (
             <button key={n.id} className={"adm-navitem" + (section === n.id ? " on" : "")} onClick={() => setSection(n.id)}>
@@ -257,6 +281,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           ))}
         </nav>
         <div className="adm-user"><span>{userEmail}</span><button className="admin-btn ghost sm" onClick={logout}>Salir</button></div>
+        <div className="adm-credit"><img src="/maxikia.png" alt="Maxik-IA Technology" /><span>Desarrollado por<br/><b>Maxik-IA Technology</b></span></div>
       </aside>
 
       <main className="adm-main">
@@ -482,6 +507,34 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
                 ))}
               </div>
             )}
+          </div>
+        </>)}
+
+        {section === "admins" && (<>
+          <h1 className="adm-title">Administradores</h1>
+          <div className="admin-card">
+            <h2 className="admin-h2">Dar acceso de administrador</h2>
+            <p className="admin-muted" style={{ marginBottom: 12 }}>La persona debe haberse registrado antes en la web (con su correo). Aquí le das acceso al panel.</p>
+            <div className="am-addgrid" style={{ gridTemplateColumns: "1fr auto" }}>
+              <input placeholder="correo@ejemplo.com" value={newAdminEmail} onChange={(e) => setNewAdminEmail(e.target.value)} />
+              <button className="admin-btn primary" onClick={addAdminByEmail}>Hacer admin</button>
+            </div>
+          </div>
+          <div className="admin-card">
+            <h2 className="admin-h2">Usuarios ({users.length})</h2>
+            <table className="adm-table2"><thead><tr><th>Correo</th><th>Nombre</th><th>Rol</th><th>Acciones</th></tr></thead>
+              <tbody>{users.map((u) => (
+                <tr key={u.id}>
+                  <td>{u.email}</td>
+                  <td>{u.full_name || "—"}</td>
+                  <td><span className={"st " + (u.role === "admin" ? "st-listo" : u.role === "staff" ? "st-preparacion" : "st-entregado")}>{u.role}</span></td>
+                  <td className="am-actions">
+                    {u.role !== "admin" && <button className="admin-btn sm primary" onClick={() => setRoleFor(u.email, "admin")}>Admin</button>}
+                    {u.role !== "staff" && <button className="admin-btn sm" onClick={() => setRoleFor(u.email, "staff")}>Staff</button>}
+                    {u.role !== "customer" && <button className="admin-btn sm danger" onClick={() => setRoleFor(u.email, "customer")}>Quitar</button>}
+                  </td>
+                </tr>
+              ))}</tbody></table>
           </div>
         </>)}
 
