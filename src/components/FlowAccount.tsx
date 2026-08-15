@@ -52,7 +52,14 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
     setReady(true);
   }, [supabase, loadData]);
 
-  useEffect(() => { check(); }, [check]);
+  useEffect(() => {
+    check();
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session?.user) { setLogged(true); loadData(session.user.id); }
+      else { setLogged(false); setProfile(null); }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [check, supabase, loadData]);
 
   const doRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +101,7 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
   if (!logged) {
     return (
       <div className="flow-wrap">
+        <a href="/" className="flow-back">← Volver al inicio</a>
         <div className="flow-card">
           <div className="flow-tabs">
             <button className={mode === "register" ? "on" : ""} onClick={() => setMode("register")}>Crear cuenta</button>
@@ -125,6 +133,7 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
           )}
           {msg && <p className="flow-msg">{msg}</p>}
         </div>
+        <p className="flow-skip">¿Solo quieres pedir? <a href="/">Continúa sin cuenta</a> — igual puedes hacer tu pedido, pero no acumularás puntos.</p>
       </div>
     );
   }

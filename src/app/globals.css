@@ -561,3 +561,10 @@
 .hist-pts{font-weight:700}
 .hist-pts.pos{color:#2e7d51}
 .hist-pts.neg{color:#D9534F}
+
+/* volver / saltar registro en Flow */
+.flow-back{display:inline-flex;align-items:center;gap:.3em;color:var(--muted);font-size:.9rem;font-weight:600;margin-bottom:16px;text-decoration:none;transition:.15s}
+.flow-back:hover{color:var(--orange-deep)}
+.flow-skip{text-align:center;color:var(--muted);font-size:.85rem;margin-top:18px}
+.flow-skip a{color:var(--orange-deep);font-weight:600;text-decoration:none}
+.flow-skip a:hover{text-decoration:underline}
