@@ -5,7 +5,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 type Category = { id: string; name: string };
 type MenuItem = { id: string; name: string; description: string | null; price: number; cost: number; featured: boolean; active: boolean; category_id: string | null };
 type OrderItem = { id: string; name: string; quantity: number; unit_price: number; subtotal: number; note: string | null; menu_item_id: string | null };
-type Order = { id: string; channel: string; status: string; total: number; notes: string | null; created_at: string; order_items: OrderItem[] };
+type Order = { id: string; channel: string; status: string; total: number; table_number: number | null; notes: string | null; created_at: string; order_items: OrderItem[] };
 type Inv = { id: string; name: string; category: string | null; unit: string | null; stock: number; min_stock: number };
 type Zone = { name: string } | null;
 type Reservation = { id: string; party_size: number; reserved_at: string; status: string; notes: string | null; reservation_zones: Zone };
@@ -39,7 +39,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     const [c, i, o, iv, r, cl] = await Promise.all([
       supabase.from("menu_categories").select("id,name").order("sort_order"),
       supabase.from("menu_items").select("id,name,description,price,cost,featured,active,category_id").order("name"),
-      supabase.from("orders").select("id,channel,status,total,notes,created_at,order_items(id,name,quantity,unit_price,subtotal,note,menu_item_id)").order("created_at", { ascending: false }).limit(200),
+      supabase.from("orders").select("id,channel,status,total,table_number,notes,created_at,order_items(id,name,quantity,unit_price,subtotal,note,menu_item_id)").order("created_at", { ascending: false }).limit(200),
       supabase.from("inventory").select("*").order("name"),
       supabase.from("reservations").select("id,party_size,reserved_at,status,notes,reservation_zones(name)").order("reserved_at", { ascending: false }).limit(100),
       supabase.from("profiles").select("id,full_name,role,flow_points,flow_tier").order("flow_points", { ascending: false }),
@@ -215,7 +215,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
             {orders.length === 0 ? <p className="admin-muted">Aún no hay pedidos.</p> : (
               <table className="adm-table2"><thead><tr><th>Pedido</th><th>Canal</th><th>Total</th><th>Estado</th><th>Fecha</th></tr></thead>
                 <tbody>{orders.slice(0, 8).map((o) => (
-                  <tr key={o.id}><td>#{o.id.slice(0, 6)}</td><td>{o.channel}</td><td>{cop(o.total)}</td><td><span className={"st st-" + o.status}>{STATE_LABEL[o.status] || o.status}</span></td><td>{fmtDate(o.created_at)}</td></tr>
+                  <tr key={o.id}><td>#{o.id.slice(0, 6)}</td><td>{o.table_number ? "Mesa " + o.table_number : o.channel}</td><td>{cop(o.total)}</td><td><span className={"st st-" + o.status}>{STATE_LABEL[o.status] || o.status}</span></td><td>{fmtDate(o.created_at)}</td></tr>
                 ))}</tbody></table>
             )}
           </div>
@@ -228,7 +228,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
             {orders.filter((o) => o.status !== "entregado" && o.status !== "cancelado").map((o) => (
               <div className="ordercard" key={o.id}>
                 <div className="oc-head"><b>#{o.id.slice(0, 6)}</b><span className={"st st-" + o.status}>{STATE_LABEL[o.status]}</span></div>
-                <div className="oc-meta">{o.channel} · {fmtDate(o.created_at)}</div>
+                <div className="oc-meta">{o.table_number ? <b style={{color:"var(--orange-deep)"}}>Mesa {o.table_number} · </b> : null}{o.channel} · {fmtDate(o.created_at)}</div>
                 <div className="oc-items">{o.order_items?.map((li) => (<div key={li.id} className="oc-li"><span>{li.quantity}× {li.name}</span>{li.note ? <em> — {li.note}</em> : null}</div>))}</div>
                 {o.notes && <div className="oc-note">📝 {o.notes}</div>}
                 <div className="oc-foot"><b>{cop(o.total)}</b>

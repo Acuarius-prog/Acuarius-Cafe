@@ -4,7 +4,14 @@ import FlowMatch from "@/components/FlowMatch";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ mesa?: string }>;
+}) {
+  const sp = await searchParams;
+  const mesaNum = sp?.mesa ? parseInt(sp.mesa, 10) : NaN;
+  const mesa = Number.isInteger(mesaNum) && mesaNum >= 1 && mesaNum <= 50 ? mesaNum : null;
   return (
     <>
       <div className="topstrip">
@@ -14,6 +21,17 @@ export default function Home() {
       <Nav />
 
       <main id="top">
+        {mesa && (
+          <section className="mesa-welcome">
+            <div className="wrap">
+              <span className="mw-badge">📍 Mesa {mesa}</span>
+              <h2>¡Bienvenido a Acuarius!</h2>
+              <p>Estás en la mesa {mesa}. Arma tu pedido desde tu celular, sin esperar al mesero.</p>
+              <a href="#menu" className="btn btn-primary">Ver la carta</a>
+            </div>
+          </section>
+        )}
+
         {/* HERO */}
         <section className="hero">
           <div className="hero-glow" aria-hidden="true"></div>
@@ -48,7 +66,7 @@ export default function Home() {
               <h2>Una barra, seis mundos por explorar</h2>
               <p>Toca una categoría para filtrar, arma tu pedido y envíalo.</p>
             </div>
-            <MenuBlock />
+            <MenuBlock table={mesa} />
           </div>
         </section>
 

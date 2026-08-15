@@ -25,11 +25,13 @@ export default function MenuSection({
   items,
   supabaseUrl,
   supabaseKey,
+  table,
 }: {
   categories: Category[];
   items: Item[];
   supabaseUrl: string;
   supabaseKey: string;
+  table?: number | null;
 }) {
   const [supabase] = useState(() => createClient(supabaseUrl, supabaseKey));
   const [active, setActive] = useState<string>("all");
@@ -73,8 +75,12 @@ export default function MenuSection({
 
   const send = async () => {
     if (lines.length === 0) return;
-    if (!name.trim() || !phone.trim()) {
-      setError("Escribe tu nombre y teléfono.");
+    if (!name.trim()) {
+      setError("Escribe tu nombre.");
+      return;
+    }
+    if (!table && !phone.trim()) {
+      setError("Escribe tu teléfono.");
       return;
     }
     setSending(true);
@@ -83,6 +89,7 @@ export default function MenuSection({
       p_channel: channel,
       p_customer: { name, phone },
       p_notes: gnote,
+      p_table: table ?? null,
       p_items: lines.map((l) => ({
         menu_item_id: l.item.id,
         name: l.item.name,
@@ -110,6 +117,8 @@ export default function MenuSection({
 
   return (
     <>
+      {table ? <div className="mesa-chip">📍 Estás en la <b>Mesa {table}</b> · pide desde aquí</div> : null}
+
       {/* Tarjetas de categoría (clicables) */}
       <div className="cat-cards">
         <button className={"cat-card" + (active === "all" ? " on" : "")} onClick={() => pick("all")}>
@@ -171,7 +180,7 @@ export default function MenuSection({
               <div className="cart-confirm">
                 <div className="cc-check">✓</div>
                 <h3>¡Pedido enviado!</h3>
-                <p>Tu pedido quedó registrado. Nuestro equipo lo verá en el panel y lo preparará.</p>
+                <p>{table ? `Tu pedido para la Mesa ${table} quedó registrado.` : "Tu pedido quedó registrado."} Nuestro equipo lo verá en el panel y lo preparará.</p>
                 <p className="cc-num">N° {orderId.slice(0, 8).toUpperCase()}</p>
                 <button className="btn btn-primary" onClick={closeConfirm}>Listo</button>
               </div>
@@ -216,16 +225,22 @@ export default function MenuSection({
                     <label>Tu nombre
                       <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre" />
                     </label>
-                    <label>Teléfono
-                      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Teléfono / WhatsApp" />
-                    </label>
-                    <label>¿Cómo lo quieres?
-                      <select value={channel} onChange={(e) => setChannel(e.target.value)}>
-                        <option value="local">Para consumir en el local</option>
-                        <option value="para_llevar">Para llevar</option>
-                        <option value="domicilio">Domicilio</option>
-                      </select>
-                    </label>
+                    {table ? (
+                      <div className="mesa-note">📍 Pedido para la <b>Mesa {table}</b></div>
+                    ) : (
+                      <>
+                        <label>Teléfono
+                          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Teléfono / WhatsApp" />
+                        </label>
+                        <label>¿Cómo lo quieres?
+                          <select value={channel} onChange={(e) => setChannel(e.target.value)}>
+                            <option value="local">Para consumir en el local</option>
+                            <option value="para_llevar">Para llevar</option>
+                            <option value="domicilio">Domicilio</option>
+                          </select>
+                        </label>
+                      </>
+                    )}
                     <label>Nota general (opcional)
                       <input value={gnote} onChange={(e) => setGnote(e.target.value)} placeholder="Dirección, indicaciones…" />
                     </label>
