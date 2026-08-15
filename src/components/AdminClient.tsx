@@ -10,6 +10,8 @@ type Inv = { id: string; name: string; category: string | null; unit: string | n
 type Zone = { name: string } | null;
 type Reservation = { id: string; party_size: number; reserved_at: string; status: string; notes: string | null; reservation_zones: Zone };
 type Client = { id: string; full_name: string | null; role: string; flow_points: number; flow_tier: string };
+type Product = { id: string; name: string; description: string | null; price: number; stock: number; active: boolean; image_url: string | null };
+type ResZone = { id: string; name: string; capacity: number; active: boolean; image_url: string | null };
 
 const cop = (n: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(n || 0);
 const ORDER_STATES = ["nuevo", "preparacion", "listo", "entregado"];
@@ -28,6 +30,10 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
   const [inv, setInv] = useState<Inv[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [zones, setZones] = useState<ResZone[]>([]);
+  const [pName, setPName] = useState(""); const [pPrice, setPPrice] = useState(""); const [pStock, setPStock] = useState(""); const [pDesc, setPDesc] = useState("");
+  const [zName, setZName] = useState(""); const [zCap, setZCap] = useState("");
   const [nName, setNName] = useState(""); const [nCat, setNCat] = useState("");
   const [nPrice, setNPrice] = useState(""); const [nCost, setNCost] = useState(""); const [nDesc, setNDesc] = useState("");
   const [iName, setIName] = useState(""); const [iStock, setIStock] = useState(""); const [iMin, setIMin] = useState(""); const [iUnit, setIUnit] = useState("unid.");
@@ -44,6 +50,12 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
       supabase.from("reservations").select("id,party_size,reserved_at,status,notes,reservation_zones(name)").order("reserved_at", { ascending: false }).limit(100),
       supabase.from("profiles").select("id,full_name,role,flow_points,flow_tier").order("flow_points", { ascending: false }),
     ]);
+    const [pr, zn] = await Promise.all([
+      supabase.from("products").select("id,name,description,price,stock,active,image_url").order("name"),
+      supabase.from("reservation_zones").select("id,name,capacity,active,image_url").order("name"),
+    ]);
+    setProducts((pr.data as Product[]) ?? []);
+    setZones((zn.data as ResZone[]) ?? []);
     setCategories((c.data as Category[]) ?? []);
     setItems((i.data as MenuItem[]) ?? []);
     setOrders((o.data as unknown as Order[]) ?? []);
@@ -109,6 +121,39 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     patchItem(it.id, { image_url: url });
     flash("Foto actualizada");
   };
+
+  const uploadImage = async (bucket: string, id: string, file: File): Promise<string | null> => {
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const path = id + "." + ext;
+    const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true, cacheControl: "3600" });
+    if (error) { flash("No se pudo subir: " + error.message); return null; }
+    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+    return data.publicUrl + "?v=" + Date.now();
+  };
+
+  // Tienda
+  const addProduct = async () => {
+    if (!pName || !pPrice) { flash("Nombre y precio del kit."); return; }
+    const { error } = await supabase.from("products").insert({ name: pName, price: Number(pPrice), stock: Number(pStock || 0), description: pDesc || null, active: true });
+    if (error) { flash("Error: " + error.message); return; }
+    setPName(""); setPPrice(""); setPStock(""); setPDesc(""); flash("Kit agregado"); await loadAll();
+  };
+  const patchProduct = (id: string, patch: Partial<Product>) => setProducts((p) => p.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+  const saveProduct = async (x: Product) => { await supabase.from("products").update({ name: x.name, price: Number(x.price), stock: Number(x.stock), description: x.description, active: x.active }).eq("id", x.id); flash("Guardado"); };
+  const removeProduct = async (x: Product) => { if (!confirm("¿Eliminar \"" + x.name + "\"?")) return; await supabase.from("products").delete().eq("id", x.id); flash("Eliminado"); await loadAll(); };
+  const uploadProductPhoto = async (x: Product, file: File) => { const url = await uploadImage("product-images", "kit-" + x.id, file); if (!url) return; await supabase.from("products").update({ image_url: url }).eq("id", x.id); patchProduct(x.id, { image_url: url }); flash("Foto actualizada"); };
+
+  // Zonas de reserva
+  const addZone = async () => {
+    if (!zName) { flash("Nombre de la zona."); return; }
+    const { error } = await supabase.from("reservation_zones").insert({ name: zName, capacity: Number(zCap || 4), active: true });
+    if (error) { flash("Error: " + error.message); return; }
+    setZName(""); setZCap(""); flash("Zona agregada"); await loadAll();
+  };
+  const patchZone = (id: string, patch: Partial<ResZone>) => setZones((p) => p.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+  const saveZone = async (x: ResZone) => { await supabase.from("reservation_zones").update({ name: x.name, capacity: Number(x.capacity), active: x.active }).eq("id", x.id); flash("Guardado"); };
+  const removeZone = async (x: ResZone) => { if (!confirm("¿Eliminar \"" + x.name + "\"?")) return; await supabase.from("reservation_zones").delete().eq("id", x.id); flash("Eliminado"); await loadAll(); };
+  const uploadZonePhoto = async (x: ResZone, file: File) => { const url = await uploadImage("product-images", "zona-" + x.id, file); if (!url) return; await supabase.from("reservation_zones").update({ image_url: url }).eq("id", x.id); patchZone(x.id, { image_url: url }); flash("Foto actualizada"); };
 
   const advanceOrder = async (o: Order) => {
     const i = ORDER_STATES.indexOf(o.status);
@@ -194,6 +239,8 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     { id: "reportes", label: "Reportes", badge: 0 },
     { id: "inventario", label: "Inventario", badge: 0 },
     { id: "reservas", label: "Reservas", badge: 0 },
+    { id: "tienda", label: "Tienda", badge: 0 },
+    { id: "zonas", label: "Zonas", badge: 0 },
     { id: "clientes", label: "Clientes", badge: 0 },
   ];
   const fmtDate = (s: string) => new Date(s).toLocaleString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -369,6 +416,71 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
                     <td><span className={"st st-" + (r.status === "confirmada" ? "listo" : r.status === "cancelada" ? "cancelado" : "nuevo")}>{r.status}</span></td>
                     <td className="am-actions"><button className="admin-btn sm primary" onClick={() => setResStatus(r, "confirmada")}>Confirmar</button><button className="admin-btn sm danger" onClick={() => setResStatus(r, "cancelada")}>Cancelar</button></td></tr>
                 ))}</tbody></table>
+            )}
+          </div>
+        </>)}
+
+        {section === "tienda" && (<>
+          <h1 className="adm-title">Tienda (kits)</h1>
+          <div className="admin-card">
+            <h2 className="admin-h2">Agregar kit</h2>
+            <div className="am-addgrid am-addgrid5">
+              <input placeholder="Nombre del kit" value={pName} onChange={(e) => setPName(e.target.value)} />
+              <input type="number" placeholder="Precio" value={pPrice} onChange={(e) => setPPrice(e.target.value)} />
+              <input type="number" placeholder="Stock" value={pStock} onChange={(e) => setPStock(e.target.value)} />
+              <input placeholder="Descripción" value={pDesc} onChange={(e) => setPDesc(e.target.value)} />
+              <button className="admin-btn primary" onClick={addProduct}>Agregar</button>
+            </div>
+          </div>
+          <div className="admin-card">
+            <h2 className="admin-h2">Kits ({products.length})</h2>
+            {products.length === 0 ? <p className="admin-muted">Aún no hay kits. Agrégalos arriba.</p> : (
+              <div className="am-table">
+                {products.map((x) => (
+                  <div className="am-row" style={{ gridTemplateColumns: "auto 1.4fr .7fr .6fr auto", background: x.active ? undefined : "var(--foam)" }} key={x.id}>
+                    {x.image_url ? <img className="am-thumb" src={x.image_url} alt="" /> : <span className="am-thumb empty">📦</span>}
+                    <input className="am-in" value={x.name} onChange={(e) => patchProduct(x.id, { name: e.target.value })} />
+                    <input className="am-in" type="number" value={x.price} onChange={(e) => patchProduct(x.id, { price: Number(e.target.value) })} />
+                    <input className="am-in" type="number" value={x.stock} onChange={(e) => patchProduct(x.id, { stock: Number(e.target.value) })} title="Stock" />
+                    <div className="am-actions">
+                      <label className="admin-btn sm am-photo">Foto<input type="file" accept="image/*" hidden onChange={(e) => { const fl = e.target.files; if (fl && fl[0]) uploadProductPhoto(x, fl[0]); }} /></label>
+                      <button className="admin-btn sm" onClick={() => saveProduct(x)}>Guardar</button>
+                      <button className="admin-btn sm danger" onClick={() => removeProduct(x)}>✕</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>)}
+
+        {section === "zonas" && (<>
+          <h1 className="adm-title">Zonas de reserva</h1>
+          <div className="admin-card">
+            <h2 className="admin-h2">Agregar zona</h2>
+            <div className="am-addgrid" style={{ gridTemplateColumns: "1.6fr .8fr auto" }}>
+              <input placeholder="Nombre (ej: Terraza)" value={zName} onChange={(e) => setZName(e.target.value)} />
+              <input type="number" placeholder="Capacidad" value={zCap} onChange={(e) => setZCap(e.target.value)} />
+              <button className="admin-btn primary" onClick={addZone}>Agregar</button>
+            </div>
+          </div>
+          <div className="admin-card">
+            <h2 className="admin-h2">Zonas ({zones.length})</h2>
+            {zones.length === 0 ? <p className="admin-muted">No hay zonas. Agrégalas arriba.</p> : (
+              <div className="am-table">
+                {zones.map((x) => (
+                  <div className="am-row" style={{ gridTemplateColumns: "auto 1.6fr .8fr auto" }} key={x.id}>
+                    {x.image_url ? <img className="am-thumb" src={x.image_url} alt="" /> : <span className="am-thumb empty">🪑</span>}
+                    <input className="am-in" value={x.name} onChange={(e) => patchZone(x.id, { name: e.target.value })} />
+                    <input className="am-in" type="number" value={x.capacity} onChange={(e) => patchZone(x.id, { capacity: Number(e.target.value) })} title="Capacidad" />
+                    <div className="am-actions">
+                      <label className="admin-btn sm am-photo">Foto<input type="file" accept="image/*" hidden onChange={(e) => { const fl = e.target.files; if (fl && fl[0]) uploadZonePhoto(x, fl[0]); }} /></label>
+                      <button className="admin-btn sm" onClick={() => saveZone(x)}>Guardar</button>
+                      <button className="admin-btn sm danger" onClick={() => removeZone(x)}>✕</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </>)}

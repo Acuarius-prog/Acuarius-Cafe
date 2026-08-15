@@ -2,14 +2,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-type Profile = { full_name: string | null; flow_points: number; flow_tier: string };
+type Profile = { full_name: string | null; flow_points: number; flow_tier: string; total_spent: number };
 type Reward = { id: string; name: string; description: string | null; cost_points: number };
 type Tx = { id: string; points: number; type: string; created_at: string };
 
 const TIERS = [
-  { key: "bronce", label: "Bronce", min: 0 },
-  { key: "plata", label: "Plata", min: 500 },
-  { key: "oro", label: "Oro", min: 1500 },
+  { key: "bronce", label: "Bronce", min: 0, rate: "1x" },
+  { key: "plata", label: "Plata", min: 150000, rate: "1,5x" },
+  { key: "oro", label: "Oro", min: 400000, rate: "2x" },
 ];
 
 export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl: string; supabaseKey: string }) {
@@ -36,7 +36,7 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
 
   const loadData = useCallback(async (uid: string) => {
     const [p, r, t] = await Promise.all([
-      supabase.from("profiles").select("full_name,flow_points,flow_tier").eq("id", uid).single(),
+      supabase.from("profiles").select("full_name,flow_points,flow_tier,total_spent").eq("id", uid).single(),
       supabase.from("rewards").select("id,name,description,cost_points").eq("active", true).order("cost_points"),
       supabase.from("flow_transactions").select("id,points,type,created_at").eq("user_id", uid).order("created_at", { ascending: false }).limit(30),
     ]);
@@ -140,10 +140,12 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
 
   /* ---------- Logueado: mi Flow ---------- */
   const pts = profile?.flow_points ?? 0;
-  const tierIdx = pts >= 1500 ? 2 : pts >= 500 ? 1 : 0;
+  const spent = profile?.total_spent ?? 0;
+  const tierIdx = spent >= 400000 ? 2 : spent >= 150000 ? 1 : 0;
   const nextTier = TIERS[tierIdx + 1];
-  const toNext = nextTier ? nextTier.min - pts : 0;
-  const pct = nextTier ? Math.min(100, Math.round(((pts - TIERS[tierIdx].min) / (nextTier.min - TIERS[tierIdx].min)) * 100)) : 100;
+  const toNext = nextTier ? nextTier.min - spent : 0;
+  const pct = nextTier ? Math.min(100, Math.round(((spent - TIERS[tierIdx].min) / (nextTier.min - TIERS[tierIdx].min)) * 100)) : 100;
+  const cop2 = (n: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(n || 0);
 
   return (
     <div className="flow-wrap">
@@ -152,10 +154,10 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
           <div><div className="fh-hi">Hola,</div><div className="fh-name">{profile?.full_name || "cliente Flow"}</div></div>
           <button className="flow-logout" onClick={logout}>Salir</button>
         </div>
-        <div className="fh-tier">★ Nivel {TIERS[tierIdx].label}</div>
+        <div className="fh-tier">★ Nivel {TIERS[tierIdx].label} · ganas {TIERS[tierIdx].rate} puntos</div>
         <div className="fh-pts">{pts.toLocaleString("es-CO")} <small>puntos</small></div>
         <div className="fh-bar"><i style={{ width: pct + "%" }} /></div>
-        <div className="fh-next">{nextTier ? `${toNext} puntos para ${nextTier.label}` : "¡Nivel máximo alcanzado!"}</div>
+        <div className="fh-next">{nextTier ? `Gasta ${cop2(toNext)} más para llegar a ${nextTier.label} (${nextTier.rate})` : "¡Nivel máximo alcanzado! Ganas 2x puntos"}</div>
       </div>
 
       {msg && <p className="flow-msg ok">{msg}</p>}

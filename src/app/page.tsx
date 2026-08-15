@@ -1,5 +1,6 @@
 import Nav from "@/components/Nav";
 import MenuBlock from "@/components/MenuBlock";
+import ReservaForm from "@/components/ReservaForm";
 import FlowMatch from "@/components/FlowMatch";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +13,8 @@ export default async function Home({
   const sp = await searchParams;
   const mesaNum = sp?.mesa ? parseInt(sp.mesa, 10) : NaN;
   const mesa = Number.isInteger(mesaNum) && mesaNum >= 1 && mesaNum <= 50 ? mesaNum : null;
+  const supaUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const supaKey = process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
   return (
     <>
       <div className="topstrip">
@@ -110,19 +113,20 @@ export default async function Home({
 
         {/* RESERVAS */}
         <section className="section reserva-band" id="reservas">
-          <div className="wrap reserva-grid">
-            <div>
+          <div className="wrap reserva-grid2">
+            <div className="reserva-intro">
               <span className="eyebrow">Reservas en tiempo real</span>
-              <h2 style={{ fontSize: "clamp(2rem,3.8vw,3rem)", margin: ".35em 0 .5em" }}>Elige tu rincón favorito</h2>
-              <p style={{ color: "var(--muted)", fontSize: "1.06rem", marginBottom: "1.8em" }}>Calendario interactivo y disponibilidad al instante. Escoge la zona, la hora y el número de personas.</p>
-              <a href="#" className="btn btn-primary">Reservar una mesa</a>
+              <h2 style={{ fontSize: "clamp(2rem,3.8vw,3rem)", margin: ".35em 0 .5em" }}>Reserva tu mesa</h2>
+              <p style={{ color: "var(--muted)", fontSize: "1.06rem", marginBottom: "1.2em" }}>Elige tu zona favorita, la fecha y la hora. Verificamos disponibilidad al instante y confirmamos por WhatsApp.</p>
+              <ul className="reserva-benefits">
+                <li>Confirmación rápida por WhatsApp</li>
+                <li>Elige terraza, interior, barra o zona VIP</li>
+                <li>Sin cuenta: solo tus datos y listo</li>
+              </ul>
             </div>
-            <div className="zones">
-              <div className="zone"><h4>Terraza</h4><p>Al aire libre, ideal para las tardes.</p><span className="cap">Hasta 6 personas</span></div>
-              <div className="zone"><h4>Interior</h4><p>Ambiente cálido y luz tenue.</p><span className="cap">Hasta 8 personas</span></div>
-              <div className="zone"><h4>Barra</h4><p>Cerca de la acción, para curiosos.</p><span className="cap">Hasta 4 personas</span></div>
-              <div className="zone"><h4>Zona VIP</h4><p>Reservada, para ocasiones especiales.</p><span className="cap">Hasta 12 personas</span></div>
-            </div>
+            {supaUrl && supaKey
+              ? <ReservaForm supabaseUrl={supaUrl} supabaseKey={supaKey} whatsapp="573125487857" />
+              : <p className="carta-note">Conecta Supabase para activar las reservas.</p>}
           </div>
         </section>
 
