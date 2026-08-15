@@ -154,14 +154,30 @@ export default async function Home({
               <h2>Te esperamos en Fontibón</h2>
               <p className="lead">Un espacio cálido para quedarte: café recién hecho, buena mesa y la mejor compañía. Pásate a probar nuestro Carajillo, el favorito de la casa.</p>
               <div className="info-list">
-                <div className="info-item"><div><div className="k">Ubicación</div><div className="v">Fontibón Centro, Bogotá</div></div></div>
+                <div className="info-item"><div><div className="k">Ubicación</div><div className="v">Calle 99 No. 20C-62, Fontibón Centro, Bogotá D.C.</div></div></div>
                 <div className="info-item"><div><div className="k">Horario</div><div className="v">Lunes a domingo · 7:00 a.m. – 11:00 p.m.</div></div></div>
                 <div className="info-item"><div><div className="k">Reservas y pedidos</div><div className="v">312 548 7857</div></div></div>
               </div>
               <div className="visita-actions">
-                <a href="https://maps.google.com/?q=Acuarius+Cafe+Fontibon+Bogota" target="_blank" rel="noopener" className="btn btn-primary">Cómo llegar</a>
+                <a href="https://maps.google.com/?q=Calle+99+20C-62+Fontibon+Centro+Bogota" target="_blank" rel="noopener" className="btn btn-primary">Cómo llegar</a>
                 <a href="https://wa.me/573125487857" target="_blank" rel="noopener" className="btn btn-ghost">WhatsApp</a>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* BANQUITA */}
+        <section className="section banca-band" id="banca">
+          <div className="wrap banca-grid">
+            <div className="banca-info">
+              <span className="eyebrow">Tu rinconcito</span>
+              <h2>La banquita para tus fotos</h2>
+              <p className="lead">Creamos un espacio pensado para ti: siéntate, relájate y llévate la fotico del recuerdo. Porque en Acuarius cada visita es un buen momento para compartir.</p>
+              <a href="#visitanos" className="btn btn-primary">Ven a estrenarla</a>
+            </div>
+            <div className="banca-photo">
+              <img src="/banca.jpg" alt="Banca turquesa para fotos en Acuarius Café, rodeada de plantas" />
+              <span className="chip">📸 Llévate tu recuerdo</span>
             </div>
           </div>
         </section>
@@ -180,16 +196,20 @@ export default async function Home({
         <div className="wrap">
           <div className="foot-grid">
             <div>
-              <div className="brand"><span className="mark" style={{ fontFamily: "var(--font-playfair),serif", fontWeight: 700, fontSize: "1.5rem" }}>Acuarius</span></div>
+              <div className="foot-brand">
+                <span className="fb-name">Acuarius</span>
+                <span className="fb-sub">Café &amp; Sabores</span>
+                <span className="fb-slogan">Buenos momentos, siempre.</span>
+              </div>
               <p className="fdesc">Café de especialidad en Fontibón, Bogotá. Cafés, tés, jugos, postres, coctelería y cerveza artesanal.</p>
             </div>
             <div className="foot-col"><h5>Explorar</h5><a href="#menu">Menú</a><a href="#flowmatch">Flow Match</a><a href="#programa">Programa Flow</a><a href="#tienda">Tienda</a></div>
-            <div className="foot-col"><h5>Visítanos</h5><p>Fontibón Centro, Bogotá</p><p>Lun – Dom<br />7:00 a.m. – 11:00 p.m.</p><p>Tel. 312 548 7857</p></div>
+            <div className="foot-col"><h5>Visítanos</h5><p>Calle 99 No. 20C-62<br/>Fontibón Centro, Bogotá D.C.</p><p>Lun – Dom<br />7:00 a.m. – 11:00 p.m.</p><p>Tel. 312 548 7857</p></div>
             <div className="foot-col"><h5>Síguenos</h5><a href="#">Instagram</a><a href="#">TikTok</a><a href="#">WhatsApp</a></div>
           </div>
           <div className="foot-bottom">
             <span>© 2026 Acuarius Café &amp; Sabores. Todos los derechos reservados.</span>
-            <span>Buenos momentos, siempre.</span>
+            <span>Desarrollada por Maxik-IA Technology</span>
           </div>
         </div>
       </footer>
