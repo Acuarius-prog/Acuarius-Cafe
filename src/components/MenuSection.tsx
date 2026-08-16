@@ -267,7 +267,7 @@ export default function MenuSection({
                     </label>
                     {error && <p className="cart-err">{error}</p>}
                     <button className="btn btn-primary cart-send" onClick={send} disabled={sending}>
-                      {sending ? "Enviando…" : `Enviar pedido · ${cop(total)}`}
+                      {sending ? "Enviando…" : `Ordenar ahora · ${cop(total)}`}
                     </button>
                   </div>
                 )}
