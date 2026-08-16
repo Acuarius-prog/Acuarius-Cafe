@@ -29,6 +29,8 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
 
   // datos
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [recovery, setRecovery] = useState(false);
+  const [newPass, setNewPass] = useState("");
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [txns, setTxns] = useState<Tx[]>([]);
 
@@ -54,7 +56,8 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
 
   useEffect(() => {
     check();
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") { setRecovery(true); setLogged(false); return; }
       if (session?.user) { setLogged(true); loadData(session.user.id); }
       else { setLogged(false); setProfile(null); }
     });
@@ -84,6 +87,22 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
 
   const logout = async () => { await supabase.auth.signOut(); setLogged(false); setProfile(null); };
 
+  const forgot = async () => {
+    if (!email.trim()) { flash("Escribe tu correo arriba y vuelve a tocar el enlace."); return; }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/flow" });
+    if (error) { flash("Error: " + error.message); return; }
+    flash("Te enviamos un correo para restablecer tu contraseña. Revisa tu bandeja (y spam).");
+  };
+
+  const setNewPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPass.length < 6) { flash("La contraseña debe tener al menos 6 caracteres."); return; }
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+    if (error) { flash("Error: " + error.message); return; }
+    setRecovery(false); setNewPass("");
+    await check();
+  };
+
   const redeem = async (r: Reward) => {
     if (!confirm(`¿Canjear "${r.name}" por ${r.cost_points} puntos?`)) return;
     const { data, error } = await supabase.rpc("redeem_reward", { p_reward_id: r.id });
@@ -96,6 +115,23 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
   };
 
   if (!ready) return <div className="flow-wrap"><p className="muted">Cargando…</p></div>;
+
+  /* ---------- Restablecer contraseña ---------- */
+  if (recovery) {
+    return (
+      <div className="flow-wrap">
+        <div className="flow-card">
+          <h2 style={{ fontFamily: "var(--font-playfair),serif", fontSize: "1.5rem", marginBottom: "8px" }}>Nueva contraseña</h2>
+          <p className="flow-sub">Escribe tu nueva contraseña para tu cuenta Flow.</p>
+          <form onSubmit={setNewPassword} className="flow-form">
+            <label>Nueva contraseña<input type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} required minLength={6} /></label>
+            <button className="btn btn-primary" type="submit">Guardar contraseña</button>
+          </form>
+          {msg && <p className="flow-msg">{msg}</p>}
+        </div>
+      </div>
+    );
+  }
 
   /* ---------- No logueado: registro / login ---------- */
   if (!logged) {
@@ -129,6 +165,7 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
               <label>Correo electrónico<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
               <label>Contraseña<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
               <button className="btn btn-primary" type="submit">Ingresar</button>
+              <button type="button" className="flow-forgot" onClick={forgot}>¿Olvidaste tu contraseña?</button>
             </form>
           )}
           {msg && <p className="flow-msg">{msg}</p>}

@@ -31,7 +31,6 @@ export default function Nav() {
         </nav>
         <div className="nav-cta">
           <a href="#reservas" className="btn btn-ghost">Reservar</a>
-          <a href="#menu" className="btn btn-primary">Ver el menú</a>
           <button
             className="burger"
             aria-label="Abrir menú"

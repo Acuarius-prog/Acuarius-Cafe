@@ -648,3 +648,7 @@
 /* login: marca oscura sobre fondo claro */
 .admin-login .adm-brand2 .am-mark{color:var(--ink)}
 .admin-login .adm-brand2 .am-sub{color:var(--olive)}
+
+/* enlaces de recuperar contraseña */
+.flow-forgot,.admin-forgot{background:none;border:0;color:var(--muted);font-size:.85rem;text-decoration:underline;cursor:pointer;font-family:inherit;margin-top:4px;padding:0}
+.flow-forgot:hover,.admin-forgot:hover{color:var(--orange-deep)}

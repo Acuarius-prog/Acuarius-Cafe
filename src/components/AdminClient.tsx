@@ -25,6 +25,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [msg, setMsg] = useState(""); const [section, setSection] = useState("dashboard");
+  const [recovery, setRecovery] = useState(false); const [newPass, setNewPass] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -78,11 +79,31 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     const { data: prof } = await supabase.from("profiles").select("role").eq("id", user.id).single();
     const r = (prof as { role: string } | null)?.role ?? "customer";
     setRole(r);
-    if (r === "admin" || r === "staff") await loadAll();
+    if (r === "admin" || r === "staff" || r === "superadmin") await loadAll();
+    if (r === "staff") setSection("pedidos");
     setReady(true);
   }, [supabase, loadAll]);
 
-  useEffect(() => { checkSession(); }, [checkSession]);
+  useEffect(() => {
+    checkSession();
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") setRecovery(true);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [checkSession, supabase]);
+
+  const forgot = async () => {
+    if (!email.trim()) { flash("Escribe tu correo arriba primero."); return; }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/admin" });
+    flash(error ? "Error: " + error.message : "Correo de recuperación enviado. Revisa tu bandeja (y spam).");
+  };
+  const setNewPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPass.length < 6) { flash("Mínimo 6 caracteres."); return; }
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+    if (error) { flash("Error: " + error.message); return; }
+    setRecovery(false); setNewPass(""); await checkSession();
+  };
 
   const login = async (e: React.FormEvent) => {
     e.preventDefault(); setMsg("");
@@ -204,6 +225,17 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
 
   if (!ready) return <div className="admin-shell"><div className="admin-container"><p className="admin-muted" style={{ padding: 40 }}>Cargando...</p></div></div>;
 
+  if (recovery) return (
+    <div className="admin-shell"><div className="admin-login">
+      <h1 className="admin-h">Nueva contraseña</h1>
+      <form onSubmit={setNewPassword} className="admin-form">
+        <label>Nueva contraseña<input type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} required minLength={6} /></label>
+        <button className="admin-btn primary" type="submit">Guardar</button>
+      </form>
+      {msg && <p className="admin-msg">{msg}</p>}
+    </div></div>
+  );
+
   if (!userEmail) return (
     <div className="admin-shell"><div className="admin-login">
       <div className="adm-brand2 center"><img src="/logo.jpg" alt="Acuarius" className="adm-logo" /><div className="adm-brandtxt"><span className="am-mark">Acuarius</span><span className="am-sub">Café &amp; Sabores</span></div></div>
@@ -212,12 +244,13 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
         <label>Correo<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
         <label>Contraseña<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
         <button className="admin-btn primary" type="submit">Entrar</button>
+        <button type="button" className="admin-forgot" onClick={forgot}>¿Olvidaste tu contraseña?</button>
       </form>
       {msg && <p className="admin-msg">{msg}</p>}
     </div></div>
   );
 
-  if (role !== "admin" && role !== "staff") return (
+  if (role !== "admin" && role !== "staff" && role !== "superadmin") return (
     <div className="admin-shell"><div className="admin-login">
       <h1 className="admin-h">Sin permisos de administrador</h1>
       <p className="admin-muted">La cuenta <b>{userEmail}</b> no es administradora. En Supabase ejecuta el update de rol admin.</p>
@@ -252,19 +285,22 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
   const ventasHoy = paidOrders.filter((o) => new Date(o.created_at) >= todayStart).reduce((a, o) => a + Number(o.total), 0);
   const pedidosHoy = paidOrders.filter((o) => new Date(o.created_at) >= todayStart).length;
   const activos = orders.filter((o) => o.status === "nuevo" || o.status === "preparacion" || o.status === "listo").length;
-  const NAV = [
-    { id: "dashboard", label: "Dashboard", badge: 0 },
-    { id: "pedidos", label: "Pedidos", badge: activos },
-    { id: "menu", label: "Menú", badge: 0 },
-    { id: "reportes", label: "Reportes", badge: 0 },
-    { id: "inventario", label: "Inventario", badge: 0 },
-    { id: "reservas", label: "Reservas", badge: 0 },
-    { id: "tienda", label: "Tienda", badge: 0 },
-    { id: "zonas", label: "Zonas", badge: 0 },
-    { id: "clientes", label: "Clientes", badge: 0 },
-    { id: "admins", label: "Administradores", badge: 0 },
+  const isAdmin = role === "admin" || role === "superadmin";
+  const ALL_NAV = [
+    { id: "dashboard", label: "Dashboard", badge: 0, adminOnly: true },
+    { id: "pedidos", label: "Pedidos", badge: activos, adminOnly: false },
+    { id: "menu", label: "Menú", badge: 0, adminOnly: false },
+    { id: "reportes", label: "Reportes", badge: 0, adminOnly: true },
+    { id: "inventario", label: "Inventario", badge: 0, adminOnly: false },
+    { id: "reservas", label: "Reservas", badge: 0, adminOnly: false },
+    { id: "tienda", label: "Tienda", badge: 0, adminOnly: false },
+    { id: "zonas", label: "Zonas", badge: 0, adminOnly: false },
+    { id: "clientes", label: "Clientes", badge: 0, adminOnly: false },
+    { id: "admins", label: "Administradores", badge: 0, adminOnly: true },
   ];
+  const NAV = ALL_NAV.filter((n) => isAdmin || !n.adminOnly);
   const fmtDate = (s: string) => new Date(s).toLocaleString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+  const visibleSection = (!isAdmin && (section === "dashboard" || section === "reportes" || section === "admins")) ? "pedidos" : section;
 
   return (
     <div className="adm-shell">
@@ -287,7 +323,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
       <main className="adm-main">
         {msg && <div className="admin-toast">{msg}</div>}
 
-        {section === "dashboard" && (<>
+        {visibleSection === "dashboard" && isAdmin && (<>
           <h1 className="adm-title">Buenos momentos 👋</h1>
           <div className="kpis">
             <div className="kpi"><div className="lbl">Ventas de hoy</div><div className="val">{cop(ventasHoy)}</div></div>
@@ -306,7 +342,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {section === "pedidos" && (<>
+        {visibleSection === "pedidos" && (<>
           <h1 className="adm-title">Pedidos</h1>
           {orders.length === 0 && <div className="admin-card"><p className="admin-muted">Aún no llegan pedidos. Cuando un cliente ordene desde la web, aparecerá aquí.</p></div>}
           <div className="orders-grid">
@@ -333,7 +369,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {section === "menu" && (<>
+        {visibleSection === "menu" && (<>
           <h1 className="adm-title">Menú</h1>
           <div className="admin-card">
             <h2 className="admin-h2">Agregar producto</h2>
@@ -376,7 +412,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {section === "reportes" && (<>
+        {visibleSection === "reportes" && isAdmin && (<>
           <div className="adm-titlerow">
             <h1 className="adm-title">Reportes de ventas</h1>
             <div className="seg">{(["hoy", "semana", "mes"] as const).map((p) => (<button key={p} className={"seg-b" + (period === p ? " on" : "")} onClick={() => setPeriod(p)}>{p === "hoy" ? "Hoy" : p === "semana" ? "7 días" : "30 días"}</button>))}</div>
@@ -397,7 +433,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {section === "inventario" && (<>
+        {visibleSection === "inventario" && (<>
           <h1 className="adm-title">Inventario</h1>
           <div className="admin-card">
             <h2 className="admin-h2">Agregar insumo</h2>
@@ -431,7 +467,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {section === "reservas" && (<>
+        {visibleSection === "reservas" && (<>
           <h1 className="adm-title">Reservas</h1>
           <div className="admin-card">
             {reservations.length === 0 ? <p className="admin-muted">No hay reservas registradas.</p> : (
@@ -445,7 +481,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {section === "tienda" && (<>
+        {visibleSection === "tienda" && (<>
           <h1 className="adm-title">Tienda (kits)</h1>
           <div className="admin-card">
             <h2 className="admin-h2">Agregar kit</h2>
@@ -479,7 +515,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {section === "zonas" && (<>
+        {visibleSection === "zonas" && (<>
           <h1 className="adm-title">Zonas de reserva</h1>
           <div className="admin-card">
             <h2 className="admin-h2">Agregar zona</h2>
@@ -510,7 +546,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {section === "admins" && (<>
+        {visibleSection === "admins" && isAdmin && (<>
           <h1 className="adm-title">Administradores</h1>
           <div className="admin-card">
             <h2 className="admin-h2">Dar acceso de administrador</h2>
@@ -538,7 +574,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {section === "clientes" && (<>
+        {visibleSection === "clientes" && (<>
           <h1 className="adm-title">Clientes Flow</h1>
           <div className="admin-card">
             {clients.length === 0 ? <p className="admin-muted">Aún no hay clientes registrados.</p> : (
