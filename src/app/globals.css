@@ -652,3 +652,15 @@
 /* enlaces de recuperar contraseña */
 .flow-forgot,.admin-forgot{background:none;border:0;color:var(--muted);font-size:.85rem;text-decoration:underline;cursor:pointer;font-family:inherit;margin-top:4px;padding:0}
 .flow-forgot:hover,.admin-forgot:hover{color:var(--orange-deep)}
+
+/* ============ Tablero de permisos por persona ============ */
+.user-block{border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;background:#fff}
+.user-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.user-email{font-weight:700;font-size:.95rem;color:var(--ink)}
+.user-name{font-size:.82rem;color:var(--muted);margin-top:2px}
+.perm-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
+.perm-chip{display:inline-flex;align-items:center;gap:7px;background:var(--cream);border:1px solid var(--line);border-radius:99px;padding:.4em .9em;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:.15s}
+.perm-chip:hover{border-color:var(--olive)}
+.perm-chip.on{background:#fff;color:var(--ink);border-color:var(--olive)}
+.perm-dot{width:12px;height:12px;border-radius:50%;background:var(--line);transition:.15s}
+.perm-dot.on{background:var(--olive)}

@@ -12,7 +12,7 @@ type Reservation = { id: string; party_size: number; reserved_at: string; status
 type Client = { id: string; full_name: string | null; role: string; flow_points: number; flow_tier: string };
 type Product = { id: string; name: string; description: string | null; price: number; stock: number; active: boolean; image_url: string | null };
 type ResZone = { id: string; name: string; capacity: number; active: boolean; image_url: string | null };
-type AdminUser = { id: string; full_name: string | null; role: string; email: string };
+type AdminUser = { id: string; full_name: string | null; role: string; email: string; perms: Record<string, boolean> };
 
 const cop = (n: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(n || 0);
 const ORDER_STATES = ["nuevo", "preparacion", "listo", "entregado"];
@@ -26,6 +26,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
   const [role, setRole] = useState<string | null>(null);
   const [msg, setMsg] = useState(""); const [section, setSection] = useState("dashboard");
   const [recovery, setRecovery] = useState(false); const [newPass, setNewPass] = useState("");
+  const [myPerms, setMyPerms] = useState<Record<string, boolean>>({});
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -76,11 +77,11 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     const user = data.user;
     if (!user) { setUserEmail(null); setRole(null); setReady(true); return; }
     setUserEmail(user.email ?? "");
-    const { data: prof } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-    const r = (prof as { role: string } | null)?.role ?? "customer";
-    setRole(r);
+    const { data: acc } = await supabase.rpc("my_access");
+    const a = acc as { role: string; perms: Record<string, boolean> } | null;
+    const r = a?.role ?? "customer";
+    setRole(r); setMyPerms(a?.perms ?? {});
     if (r === "admin" || r === "staff" || r === "superadmin") await loadAll();
-    if (r === "staff") setSection("pedidos");
     setReady(true);
   }, [supabase, loadAll]);
 
@@ -190,6 +191,15 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     const { data: us } = await supabase.rpc("list_users");
     setUsers((us as AdminUser[]) ?? []);
   };
+  const setUserPerms = async (u: AdminUser, sectionId: string, value: boolean) => {
+    const nextPerms = { ...(u.perms || {}), [sectionId]: value };
+    const { data, error } = await supabase.rpc("set_user_perms", { p_email: u.email, p_perms: nextPerms });
+    if (error) { flash("Error: " + error.message); return; }
+    const res = data as { ok: boolean; error?: string };
+    if (!res.ok) { flash(res.error || "No se pudo guardar."); return; }
+    setUsers((prev) => prev.map((x) => (x.id === u.id ? { ...x, perms: nextPerms } : x)));
+    flash("Permiso actualizado ✓");
+  };
   const addAdminByEmail = async () => {
     if (!newAdminEmail.trim()) { flash("Escribe el correo."); return; }
     await setRoleFor(newAdminEmail.trim(), "admin");
@@ -285,22 +295,31 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
   const ventasHoy = paidOrders.filter((o) => new Date(o.created_at) >= todayStart).reduce((a, o) => a + Number(o.total), 0);
   const pedidosHoy = paidOrders.filter((o) => new Date(o.created_at) >= todayStart).length;
   const activos = orders.filter((o) => o.status === "nuevo" || o.status === "preparacion" || o.status === "listo").length;
-  const isAdmin = role === "admin" || role === "superadmin";
-  const ALL_NAV = [
-    { id: "dashboard", label: "Dashboard", badge: 0, adminOnly: true },
-    { id: "pedidos", label: "Pedidos", badge: activos, adminOnly: false },
-    { id: "menu", label: "Menú", badge: 0, adminOnly: false },
-    { id: "reportes", label: "Reportes", badge: 0, adminOnly: true },
-    { id: "inventario", label: "Inventario", badge: 0, adminOnly: false },
-    { id: "reservas", label: "Reservas", badge: 0, adminOnly: false },
-    { id: "tienda", label: "Tienda", badge: 0, adminOnly: false },
-    { id: "zonas", label: "Zonas", badge: 0, adminOnly: false },
-    { id: "clientes", label: "Clientes", badge: 0, adminOnly: false },
-    { id: "admins", label: "Administradores", badge: 0, adminOnly: true },
+  const SECTIONS = [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "pedidos", label: "Pedidos", badge: activos },
+    { id: "menu", label: "Menú" },
+    { id: "reportes", label: "Reportes" },
+    { id: "inventario", label: "Inventario" },
+    { id: "reservas", label: "Reservas" },
+    { id: "tienda", label: "Tienda" },
+    { id: "zonas", label: "Zonas" },
+    { id: "clientes", label: "Clientes" },
+    { id: "admins", label: "Administradores" },
   ];
-  const NAV = ALL_NAV.filter((n) => isAdmin || !n.adminOnly);
+  const roleDefault = (rl: string | null, id: string) => {
+    if (rl === "superadmin" || rl === "admin") return true;
+    if (rl === "staff") return ["dashboard", "pedidos", "menu", "inventario", "reservas", "tienda", "zonas", "clientes"].includes(id);
+    return false;
+  };
+  const effective = (rl: string | null, perms: Record<string, boolean>, id: string) =>
+    perms && Object.prototype.hasOwnProperty.call(perms, id) ? !!perms[id] : roleDefault(rl, id);
+  const canView = (id: string) => effective(role, myPerms, id);
+  const canSeeMoney = role === "admin" || role === "superadmin";
+  const isAdmin = role === "admin" || role === "superadmin";
+  const NAV = SECTIONS.filter((sx) => canView(sx.id)).map((sx) => ({ id: sx.id, label: sx.label, badge: (sx as { badge?: number }).badge ?? 0 }));
+  const visibleSection = canView(section) ? section : (NAV[0]?.id ?? "pedidos");
   const fmtDate = (s: string) => new Date(s).toLocaleString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
-  const visibleSection = (!isAdmin && (section === "dashboard" || section === "reportes" || section === "admins")) ? "pedidos" : section;
 
   return (
     <div className="adm-shell">
@@ -323,20 +342,22 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
       <main className="adm-main">
         {msg && <div className="admin-toast">{msg}</div>}
 
-        {visibleSection === "dashboard" && isAdmin && (<>
+        {visibleSection === "dashboard" && (<>
           <h1 className="adm-title">Buenos momentos 👋</h1>
           <div className="kpis">
-            <div className="kpi"><div className="lbl">Ventas de hoy</div><div className="val">{cop(ventasHoy)}</div></div>
+            {isAdmin && <div className="kpi"><div className="lbl">Ventas de hoy</div><div className="val">{cop(ventasHoy)}</div></div>}
             <div className="kpi"><div className="lbl">Pedidos hoy</div><div className="val">{pedidosHoy}</div></div>
             <div className="kpi"><div className="lbl">Pedidos activos</div><div className="val">{activos}</div></div>
-            <div className="kpi"><div className="lbl">Miembros Flow</div><div className="val">{clients.length}</div></div>
+            {isAdmin
+              ? <div className="kpi"><div className="lbl">Miembros Flow</div><div className="val">{clients.length}</div></div>
+              : <div className="kpi"><div className="lbl">Listos para entregar</div><div className="val">{orders.filter((o) => o.status === "listo").length}</div></div>}
           </div>
           <div className="admin-card">
             <h2 className="admin-h2">Últimos pedidos</h2>
             {orders.length === 0 ? <p className="admin-muted">Aún no hay pedidos.</p> : (
-              <table className="adm-table2"><thead><tr><th>Pedido</th><th>Canal</th><th>Total</th><th>Estado</th><th>Fecha</th></tr></thead>
+              <table className="adm-table2"><thead><tr><th>Pedido</th><th>Canal</th>{isAdmin && <th>Total</th>}<th>Estado</th><th>Fecha</th></tr></thead>
                 <tbody>{orders.slice(0, 8).map((o) => (
-                  <tr key={o.id}><td>#{o.id.slice(0, 6)}</td><td>{o.table_number ? "Mesa " + o.table_number : o.channel}</td><td>{cop(o.total)}</td><td><span className={"st st-" + o.status}>{STATE_LABEL[o.status] || o.status}</span></td><td>{fmtDate(o.created_at)}</td></tr>
+                  <tr key={o.id}><td>#{o.id.slice(0, 6)}</td><td>{o.table_number ? "Mesa " + o.table_number : o.channel}</td>{isAdmin && <td>{cop(o.total)}</td>}<td><span className={"st st-" + o.status}>{STATE_LABEL[o.status] || o.status}</span></td><td>{fmtDate(o.created_at)}</td></tr>
                 ))}</tbody></table>
             )}
           </div>
@@ -412,7 +433,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {visibleSection === "reportes" && isAdmin && (<>
+        {visibleSection === "reportes" && canView("reportes") && (<>
           <div className="adm-titlerow">
             <h1 className="adm-title">Reportes de ventas</h1>
             <div className="seg">{(["hoy", "semana", "mes"] as const).map((p) => (<button key={p} className={"seg-b" + (period === p ? " on" : "")} onClick={() => setPeriod(p)}>{p === "hoy" ? "Hoy" : p === "semana" ? "7 días" : "30 días"}</button>))}</div>
@@ -546,7 +567,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           </div>
         </>)}
 
-        {visibleSection === "admins" && isAdmin && (<>
+        {visibleSection === "admins" && canView("admins") && (<>
           <h1 className="adm-title">Administradores</h1>
           <div className="admin-card">
             <h2 className="admin-h2">Dar acceso de administrador</h2>
@@ -557,20 +578,37 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
             </div>
           </div>
           <div className="admin-card">
-            <h2 className="admin-h2">Usuarios ({users.length})</h2>
-            <table className="adm-table2"><thead><tr><th>Correo</th><th>Nombre</th><th>Rol</th><th>Acciones</th></tr></thead>
-              <tbody>{users.map((u) => (
-                <tr key={u.id}>
-                  <td>{u.email}</td>
-                  <td>{u.full_name || "—"}</td>
-                  <td><span className={"st " + (u.role === "admin" ? "st-listo" : u.role === "staff" ? "st-preparacion" : "st-entregado")}>{u.role}</span></td>
-                  <td className="am-actions">
-                    {u.role !== "admin" && <button className="admin-btn sm primary" onClick={() => setRoleFor(u.email, "admin")}>Admin</button>}
-                    {u.role !== "staff" && <button className="admin-btn sm" onClick={() => setRoleFor(u.email, "staff")}>Staff</button>}
-                    {u.role !== "customer" && <button className="admin-btn sm danger" onClick={() => setRoleFor(u.email, "customer")}>Quitar</button>}
-                  </td>
-                </tr>
-              ))}</tbody></table>
+            <h2 className="admin-h2">Usuarios y permisos ({users.length})</h2>
+            <p className="admin-muted" style={{ marginBottom: 14 }}>Asigna el rol y, si necesitas, ajusta con los interruptores qué secciones ve cada persona. Los interruptores mandan sobre el rol.</p>
+            {users.map((u) => (
+              <div className="user-block" key={u.id}>
+                <div className="user-head">
+                  <div>
+                    <div className="user-email">{u.email}</div>
+                    <div className="user-name">{u.full_name || "—"} · <span className={"st " + (u.role === "superadmin" ? "st-nuevo" : u.role === "admin" ? "st-listo" : u.role === "staff" ? "st-preparacion" : "st-entregado")}>{u.role}</span></div>
+                  </div>
+                  {u.role !== "superadmin" && (
+                    <div className="am-actions">
+                      {u.role !== "admin" && <button className="admin-btn sm primary" onClick={() => setRoleFor(u.email, "admin")}>Admin</button>}
+                      {u.role !== "staff" && <button className="admin-btn sm" onClick={() => setRoleFor(u.email, "staff")}>Staff</button>}
+                      {u.role !== "customer" && <button className="admin-btn sm danger" onClick={() => setRoleFor(u.email, "customer")}>Quitar acceso</button>}
+                    </div>
+                  )}
+                </div>
+                {u.role !== "superadmin" && (u.role === "admin" || u.role === "staff") && (
+                  <div className="perm-grid">
+                    {SECTIONS.map((sx) => {
+                      const on = effective(u.role, u.perms || {}, sx.id);
+                      return (
+                        <button key={sx.id} className={"perm-chip" + (on ? " on" : "")} onClick={() => setUserPerms(u, sx.id, !on)}>
+                          <span className={"perm-dot" + (on ? " on" : "")}></span>{sx.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </>)}
 
