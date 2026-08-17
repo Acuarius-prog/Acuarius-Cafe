@@ -2,15 +2,15 @@ import { getSupabase } from "@/lib/supabase/server";
 
 type Cat = { id: string; name: string; slug: string };
 
-const ICONS: Record<string, string> = {
-  cafe: "☕", cafes: "☕", te: "🍵", tes: "🍵", jugo: "🥤", jugos: "🥤",
-  smoothie: "🥤", postre: "🍰", postres: "🍰", coctel: "🍸", cocteles: "🍸",
-  cerveza: "🍺", cervezas: "🍺",
-};
-const iconFor = (s: string) => {
-  const k = (s || "").toLowerCase();
-  for (const key of Object.keys(ICONS)) if (k.includes(key)) return ICONS[key];
-  return "✨";
+const imgFor = (c: Cat) => {
+  const k = ((c.slug || "") + " " + (c.name || "")).toLowerCase();
+  if (k.includes("cafe") || k.includes("café")) return "/cat-cafes.jpg";
+  if (k.includes("te") || k.includes("té") || k.includes("infus")) return "/cat-tes.jpg";
+  if (k.includes("jugo") || k.includes("smoothie") || k.includes("batido")) return "/cat-jugos.jpg";
+  if (k.includes("postre")) return "/cat-postres.jpg";
+  if (k.includes("coctel") || k.includes("cóctel") || k.includes("cocteler")) return "/cat-cocteles.jpg";
+  if (k.includes("cerveza")) return "/cat-cerveza.jpg";
+  return "/cat-cafes.jpg";
 };
 
 export default async function MenuSummary() {
@@ -31,8 +31,8 @@ export default async function MenuSummary() {
     <div className="menu-summary">
       <div className="ms-grid">
         {categories.map((c) => (
-          <a key={c.id} href="/menu" className="ms-card">
-            <span className="ms-icon">{iconFor(c.slug || c.name)}</span>
+          <a key={c.id} href="/menu" className="ms-card" style={{ backgroundImage: `url(${imgFor(c)})` }}>
+            <span className="ms-ov"></span>
             <span className="ms-name">{c.name}</span>
           </a>
         ))}

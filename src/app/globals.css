@@ -698,12 +698,7 @@
 .menu-hero-cream h1{font-family:var(--font-playfair),serif;font-size:clamp(2rem,4.2vw,3rem);margin:.1em 0 .25em;color:var(--ink)}
 .menu-lead{color:var(--muted);font-size:1.05rem;max-width:600px;margin:0 auto}
 
-/* Resumen de categorías en la home */
-.ms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
-.ms-card{display:flex;flex-direction:column;align-items:center;gap:8px;padding:22px 14px;background:#fff;border:1px solid var(--line);border-radius:16px;transition:transform .2s,box-shadow .2s,border-color .2s}
-.ms-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-sm);border-color:var(--olive)}
-.ms-icon{font-size:2rem}
-.ms-name{font-weight:600;color:var(--ink);font-size:.98rem;text-align:center}
+
 
 /* ============================================================
    ANIMACIONES — máximo impacto
@@ -800,3 +795,43 @@
   .tienda-hero::before,.btn-primary,.lvl.oro::after,.topstrip::after,.reserva-form::before{animation:none}
 }
 
+
+/* ============ Resumen de categorías con FOTO (home) ============ */
+.ms-card.ms-photo{position:relative;overflow:hidden;min-height:150px;padding:0;border:none;align-items:stretch;justify-content:flex-end}
+.ms-card.ms-photo .ms-img{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.ms-card.ms-photo .ms-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,58,92,.12),rgba(10,25,40,.72));transition:background .3s}
+.ms-card.ms-photo .ms-name{position:relative;z-index:2;color:#fff;font-size:1.08rem;padding:14px;text-align:center;width:100%;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.ms-card.ms-photo:hover{transform:translateY(-6px) scale(1.02)}
+.ms-card.ms-photo:hover .ms-img{transform:scale(1.08)}
+.ms-card.ms-photo:hover .ms-overlay{background:linear-gradient(180deg,rgba(10,58,92,.05),rgba(10,25,40,.6))}
+
+/* ============ Tarjetas de categoría CON FOTO (carta /menu) ============ */
+.cat-card.cat-card-photo{
+  position:relative;overflow:hidden;min-height:150px;padding:0;border:none;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+  display:flex;align-items:flex-end;color:#fff;box-shadow:var(--shadow-sm)
+}
+.cat-card.cat-card-photo .cc-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(8,20,34,.35),rgba(8,20,34,.6));
+  transition:background .3s
+}
+.cat-card.cat-card-photo .cc-text{position:relative;z-index:2;padding:16px 18px;width:100%}
+.cat-card.cat-card-photo .cc-text h3{color:#fff;font-family:var(--font-playfair),serif;font-size:1.35rem;margin:0;text-shadow:0 2px 8px rgba(0,0,0,.7)}
+.cat-card.cat-card-photo .cc-text p{color:rgba(255,255,255,.92);font-size:.84rem;margin:3px 0 0;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.cat-card.cat-card-photo:hover{transform:translateY(-5px) scale(1.02)}
+.cat-card.cat-card-photo:hover .cc-overlay{background:linear-gradient(180deg,rgba(8,20,34,.28),rgba(8,20,34,.5))}
+.cat-card.cat-card-photo.on{outline:3px solid var(--gold);outline-offset:2px;border:none}
+.cat-card.cat-card-photo.on .cc-overlay{background:linear-gradient(180deg,rgba(231,178,76,.15),rgba(8,20,34,.78))}
+/* la tarjeta "Todo" (sin foto) igual de alta y centrada para que combine */
+.cat-cards .cat-card:not(.cat-card-photo){min-height:160px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+
+
+/* Resumen de categorías en la home (con foto) */
+.ms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.ms-card{position:relative;overflow:hidden;min-height:140px;border-radius:16px;display:flex;align-items:flex-end;
+  background-size:cover;background-position:center;box-shadow:var(--shadow-sm);border:1px solid var(--line)}
+.ms-card .ms-ov{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,20,34,.32),rgba(8,20,34,.6));transition:background .3s}
+.ms-card .ms-name{position:relative;z-index:2;padding:14px 16px;font-family:var(--font-playfair),serif;font-weight:700;color:#fff;font-size:1.15rem;width:100%;text-shadow:0 2px 8px rgba(0,0,0,.7)}
+.ms-card:hover{transform:translateY(-6px) scale(1.02)}
+.ms-card:hover .ms-ov{background:linear-gradient(180deg,rgba(8,20,34,.26),rgba(8,20,34,.5))}
