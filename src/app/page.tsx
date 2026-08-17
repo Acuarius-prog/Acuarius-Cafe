@@ -85,32 +85,6 @@ export default async function Home({
           </div>
         </section>
 
-        {/* PROGRAMA FLOW */}
-        <section className="section flow-prog" id="programa">
-          <div className="wrap">
-            <div className="section-head">
-              <span className="eyebrow">Programa de lealtad</span>
-              <h2>Niveles Flow: cada visita suma</h2>
-              <p>Acumula puntos con cada pedido y sube de nivel. Entre más fluyes con nosotros, mejores recompensas.</p>
-            </div>
-            <div className="levels">
-              <div className="lvl bronce">
-                <span className="tier">Nivel 1</span><h3>Bronce</h3><p className="pts">0 – 499 puntos</p>
-                <ul><li>1 punto por cada $1.000</li><li>Bebida gratis de bienvenida</li><li>Postre de cumpleaños</li></ul>
-              </div>
-              <div className="lvl plata">
-                <span className="tier">Nivel 2</span><h3>Plata</h3><p className="pts">500 – 1.499 puntos</p>
-                <ul><li>Todo lo de Bronce</li><li>1,5 puntos por cada $1.000</li><li>Reserva prioritaria de mesas</li></ul>
-              </div>
-              <div className="lvl oro">
-                <span className="flag">Más popular</span>
-                <span className="tier">Nivel 3</span><h3>Oro</h3><p className="pts">1.500+ puntos</p>
-                <ul><li>Todo lo de Plata</li><li>2 puntos por cada $1.000</li><li>Catas y eventos privados</li><li>Zona VIP sin costo</li></ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* RESERVAS */}
         <section className="section reserva-band" id="reservas">
           <div className="wrap reserva-grid2">
@@ -207,7 +181,7 @@ export default async function Home({
               </div>
               <p className="fdesc">Café de especialidad en Fontibón, Bogotá. Cafés, tés, jugos, postres, coctelería y cerveza artesanal.</p>
             </div>
-            <div className="foot-col"><h5>Explorar</h5><a href="#menu">Menú</a><a href="#flowmatch">Flow Match</a><a href="#programa">Programa Flow</a><a href="#tienda">Tienda</a></div>
+            <div className="foot-col"><h5>Explorar</h5><a href="#menu">Menú</a><a href="#flowmatch">Flow Match</a><a href="/flow">Mi Flow</a><a href="#tienda">Tienda</a></div>
             <div className="foot-col"><h5>Visítanos</h5><p>Calle 99 No. 20C-62<br/>Fontibón Centro, Bogotá D.C.</p><p>Lun – Dom<br />7:00 a.m. – 11:00 p.m.</p><p>Tel. 312 548 7857</p></div>
             <div className="foot-col"><h5>Síguenos</h5><a href="#">Instagram</a><a href="#">TikTok</a><a href="#">WhatsApp</a></div>
           </div>

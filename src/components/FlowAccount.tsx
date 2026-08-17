@@ -133,9 +133,39 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
     );
   }
 
+  /* ---------- Niveles (explicación del programa) ---------- */
+  const LevelsIntro = (
+    <section className="section flow-prog" id="programa">
+      <div className="wrap">
+        <div className="section-head center">
+          <span className="eyebrow" style={{ justifyContent: "center" }}>Programa de lealtad</span>
+          <h2>Flow: cada visita suma</h2>
+          <p>Acumula puntos con cada pedido y sube de nivel. Entre más fluyes con nosotros, mejores recompensas.</p>
+        </div>
+        <div className="levels">
+          <div className="lvl bronce">
+            <span className="tier">Nivel 1</span><h3>Bronce</h3><p className="pts">Desde $0 gastados</p>
+            <ul><li>1 punto por cada $1.000</li><li>Bebida gratis de bienvenida</li><li>Postre de cumpleaños</li></ul>
+          </div>
+          <div className="lvl plata">
+            <span className="tier">Nivel 2</span><h3>Plata</h3><p className="pts">Desde $150.000 gastados</p>
+            <ul><li>Todo lo de Bronce</li><li>1,5 puntos por cada $1.000</li><li>Reserva prioritaria de mesas</li></ul>
+          </div>
+          <div className="lvl oro">
+            <span className="flag">Más popular</span>
+            <span className="tier">Nivel 3</span><h3>Oro</h3><p className="pts">Desde $400.000 gastados</p>
+            <ul><li>Todo lo de Plata</li><li>2 puntos por cada $1.000</li><li>Catas y eventos privados</li><li>Zona VIP sin costo</li></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
   /* ---------- No logueado: registro / login ---------- */
   if (!logged) {
     return (
+      <>
+      {LevelsIntro}
       <div className="flow-wrap">
         <a href="/" className="flow-back">← Volver al inicio</a>
         <div className="flow-card">
@@ -172,6 +202,7 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
         </div>
         <p className="flow-skip">¿Solo quieres pedir? <a href="/">Continúa sin cuenta</a> — igual puedes hacer tu pedido, pero no acumularás puntos.</p>
       </div>
+      </>
     );
   }
 
