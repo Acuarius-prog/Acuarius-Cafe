@@ -17,7 +17,7 @@ export default function Nav() {
   return (
     <header className={"nav" + (scrolled ? " scrolled" : "")}>
       <div className="wrap nav-inner">
-        <a className="brand brand-lg" href="#top" aria-label="Acuarius Café y Sabores, inicio">
+        <a className="brand brand-lg" href="/" aria-label="Acuarius Café y Sabores, inicio">
           <span className="mark">Acuarius</span>
           <span className="sub">Café &amp; Sabores</span>
         </a>
@@ -25,11 +25,11 @@ export default function Nav() {
           <a href="#menu" onClick={close}>Menú</a>
           <a href="#flowmatch" onClick={close}>Flow Match</a>
           <a href="/flow" onClick={close}>Mi Flow</a>
-          <a href="#tienda" onClick={close}>Tienda</a>
+          <a href="/tienda" onClick={close}>Tienda</a>
           <a href="#visitanos" onClick={close}>Visítanos</a>
         </nav>
         <div className="nav-cta">
-          <a href="#reservas" className="btn btn-ghost">Reservar</a>
+          <a href="#reservas" className="btn btn-olive">Reservar</a>
           <button
             className="burger"
             aria-label="Abrir menú"

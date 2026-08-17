@@ -165,9 +165,9 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
   if (!logged) {
     return (
       <>
+      <div className="wrap" style={{ paddingTop: "18px" }}><a href="/" className="flow-back">← Volver al inicio</a></div>
       {LevelsIntro}
       <div className="flow-wrap">
-        <a href="/" className="flow-back">← Volver al inicio</a>
         <div className="flow-card">
           <div className="flow-tabs">
             <button className={mode === "register" ? "on" : ""} onClick={() => setMode("register")}>Crear cuenta</button>

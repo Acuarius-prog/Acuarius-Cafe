@@ -104,22 +104,6 @@ export default async function Home({
           </div>
         </section>
 
-        {/* TIENDA */}
-        <section className="section" id="tienda">
-          <div className="wrap">
-            <div className="section-head">
-              <span className="eyebrow">Tienda online</span>
-              <h2>Llévate el ritual a casa</h2>
-              <p>Kits curados por nuestro equipo para que recrees tus favoritos donde estés.</p>
-            </div>
-            <div className="kits">
-              <article className="kit k1"><div className="top">☕</div><div className="body"><h3>Kit Barista</h3><p>Grano de origen, prensa francesa, molino y guía.</p><div className="row"><span className="kprice">$149.000</span><a href="#" className="btn btn-ghost">Añadir</a></div></div></article>
-              <article className="kit k2"><div className="top">🍸</div><div className="body"><h3>Kit Coctelero</h3><p>Coctelera, jigger, mezclador y recetario de barra.</p><div className="row"><span className="kprice">$189.000</span><a href="#" className="btn btn-ghost">Añadir</a></div></div></article>
-              <article className="kit k3"><div className="top">🥤</div><div className="body"><h3>Kit Detox</h3><p>Jugos prensados, tés botánicos y plan de 3 días.</p><div className="row"><span className="kprice">$99.000</span><a href="#" className="btn btn-ghost">Añadir</a></div></div></article>
-            </div>
-          </div>
-        </section>
-
         {/* VISITANOS */}
         <section className="section visita-band" id="visitanos">
           <div className="wrap visita-grid">
@@ -181,7 +165,7 @@ export default async function Home({
               </div>
               <p className="fdesc">Café de especialidad en Fontibón, Bogotá. Cafés, tés, jugos, postres, coctelería y cerveza artesanal.</p>
             </div>
-            <div className="foot-col"><h5>Explorar</h5><a href="#menu">Menú</a><a href="#flowmatch">Flow Match</a><a href="/flow">Mi Flow</a><a href="#tienda">Tienda</a></div>
+            <div className="foot-col"><h5>Explorar</h5><a href="#menu">Menú</a><a href="#flowmatch">Flow Match</a><a href="/flow">Mi Flow</a><a href="/tienda">Tienda</a></div>
             <div className="foot-col"><h5>Visítanos</h5><p>Calle 99 No. 20C-62<br/>Fontibón Centro, Bogotá D.C.</p><p>Lun – Dom<br />7:00 a.m. – 11:00 p.m.</p><p>Tel. 312 548 7857</p></div>
             <div className="foot-col"><h5>Síguenos</h5><a href="#">Instagram</a><a href="#">TikTok</a><a href="#">WhatsApp</a></div>
           </div>
