@@ -62,6 +62,16 @@ export default function MenuSection({
   const lines = Object.values(cart);
   const count = lines.reduce((a, l) => a + l.qty, 0);
   const total = lines.reduce((a, l) => a + l.item.price * l.qty, 0);
+  const catImg = (c: Category) => {
+    const k = ((c.slug || "") + " " + (c.name || "")).toLowerCase();
+    if (k.includes("cafe") || k.includes("café")) return "/cat-cafes.jpg";
+    if (k.includes("te") || k.includes("té") || k.includes("infus")) return "/cat-tes.jpg";
+    if (k.includes("jugo") || k.includes("smoothie") || k.includes("batido")) return "/cat-jugos.jpg";
+    if (k.includes("postre")) return "/cat-postres.jpg";
+    if (k.includes("coctel") || k.includes("cóctel") || k.includes("cocteler")) return "/cat-cocteles.jpg";
+    if (k.includes("cerveza")) return "/cat-cerveza.jpg";
+    return "/cat-cafes.jpg";
+  };
   const filtered = active === "all" ? items : items.filter((i) => i.category_id === active);
 
   const add = (it: Item) =>
@@ -144,9 +154,9 @@ export default function MenuSection({
         {categories.map((c) => {
           const n = items.filter((i) => i.category_id === c.id).length;
           return (
-            <button key={c.id} className={"cat-card" + (active === c.id ? " on" : "")} onClick={() => pick(c.id)}>
-              <h3>{c.name}</h3>
-              <p>{n} producto{n === 1 ? "" : "s"}</p>
+            <button key={c.id} className={"cat-card cat-card-photo" + (active === c.id ? " on" : "")} onClick={() => pick(c.id)} style={{ backgroundImage: `url(${catImg(c)})` }}>
+              <span className="cc-overlay"></span>
+              <span className="cc-text"><h3>{c.name}</h3><p>{n} producto{n === 1 ? "" : "s"}</p></span>
             </button>
           );
         })}
