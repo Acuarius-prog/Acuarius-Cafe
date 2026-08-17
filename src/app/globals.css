@@ -835,3 +835,23 @@
 .ms-card .ms-name{position:relative;z-index:2;padding:14px 16px;font-family:var(--font-playfair),serif;font-weight:700;color:#fff;font-size:1.15rem;width:100%;text-shadow:0 2px 8px rgba(0,0,0,.7)}
 .ms-card:hover{transform:translateY(-6px) scale(1.02)}
 .ms-card:hover .ms-ov{background:linear-gradient(180deg,rgba(8,20,34,.26),rgba(8,20,34,.5))}
+
+/* ============ Transiciones de página (elegantes) ============ */
+html{scroll-behavior:smooth}
+.page-anim{animation:pageIn .55s cubic-bezier(.22,1,.36,1) both}
+@keyframes pageIn{
+  from{opacity:0;transform:translateY(14px) scale(.994);filter:blur(2px)}
+  to{opacity:1;transform:none;filter:blur(0)}
+}
+/* velo suave que aparece al cargar y se desvanece, para que el cambio no sea brusco */
+.page-anim::before{
+  content:"";position:fixed;inset:0;z-index:999;pointer-events:none;
+  background:var(--cream);animation:veilOut .6s ease forwards
+}
+@keyframes veilOut{from{opacity:.6}to{opacity:0}}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .page-anim{animation:none}
+  .page-anim::before{display:none}
+}

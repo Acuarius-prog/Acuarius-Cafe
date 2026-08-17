@@ -4,12 +4,12 @@ type Cat = { id: string; name: string; slug: string };
 
 const imgFor = (c: Cat) => {
   const k = ((c.slug || "") + " " + (c.name || "")).toLowerCase();
+  if (k.includes("cerveza")) return "/cat-cerveza.jpg";
+  if (k.includes("coctel") || k.includes("cóctel") || k.includes("cocteler") || k.includes("trago")) return "/cat-cocteles.jpg";
   if (k.includes("cafe") || k.includes("café")) return "/cat-cafes.jpg";
-  if (k.includes("te") || k.includes("té") || k.includes("infus")) return "/cat-tes.jpg";
   if (k.includes("jugo") || k.includes("smoothie") || k.includes("batido")) return "/cat-jugos.jpg";
   if (k.includes("postre")) return "/cat-postres.jpg";
-  if (k.includes("coctel") || k.includes("cóctel") || k.includes("cocteler")) return "/cat-cocteles.jpg";
-  if (k.includes("cerveza")) return "/cat-cerveza.jpg";
+  if (k.includes("infus") || k.includes("té") || k.includes("tes") || k.startsWith("te")) return "/cat-tes.jpg";
   return "/cat-cafes.jpg";
 };
 

@@ -64,12 +64,12 @@ export default function MenuSection({
   const total = lines.reduce((a, l) => a + l.item.price * l.qty, 0);
   const catImg = (c: Category) => {
     const k = ((c.slug || "") + " " + (c.name || "")).toLowerCase();
+    if (k.includes("cerveza")) return "/cat-cerveza.jpg";
+    if (k.includes("coctel") || k.includes("cóctel") || k.includes("cocteler") || k.includes("trago")) return "/cat-cocteles.jpg";
     if (k.includes("cafe") || k.includes("café")) return "/cat-cafes.jpg";
-    if (k.includes("te") || k.includes("té") || k.includes("infus")) return "/cat-tes.jpg";
     if (k.includes("jugo") || k.includes("smoothie") || k.includes("batido")) return "/cat-jugos.jpg";
     if (k.includes("postre")) return "/cat-postres.jpg";
-    if (k.includes("coctel") || k.includes("cóctel") || k.includes("cocteler")) return "/cat-cocteles.jpg";
-    if (k.includes("cerveza")) return "/cat-cerveza.jpg";
+    if (k.includes("infus") || k.includes("té") || /\bte\b|^te|tes|teria/.test(k)) return "/cat-tes.jpg";
     return "/cat-cafes.jpg";
   };
   const filtered = active === "all" ? items : items.filter((i) => i.category_id === active);
