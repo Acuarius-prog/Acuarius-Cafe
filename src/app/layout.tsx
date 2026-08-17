@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Animations from "@/components/Animations";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
@@ -26,7 +27,8 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}<PWARegister /></body>
+      <body>{children}
+        <Animations /><PWARegister /></body>
     </html>
   );
 }
