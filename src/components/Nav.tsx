@@ -22,7 +22,6 @@ export default function Nav() {
           <span className="sub">Café &amp; Sabores</span>
         </a>
         <nav className={"nav-links" + (open ? " open" : "")} aria-label="Principal">
-          <a href="#menu" onClick={close}>Menú</a>
           <a href="#flowmatch" onClick={close}>Flow Match</a>
           <a href="/flow" onClick={close}>Mi Flow</a>
           <a href="/tienda" onClick={close}>Tienda</a>

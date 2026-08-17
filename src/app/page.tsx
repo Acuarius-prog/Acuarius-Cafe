@@ -1,5 +1,5 @@
 import Nav from "@/components/Nav";
-import MenuBlock from "@/components/MenuBlock";
+import MenuSummary from "@/components/MenuSummary";
 import ReservaForm from "@/components/ReservaForm";
 import FlowMatch from "@/components/FlowMatch";
 
@@ -30,7 +30,7 @@ export default async function Home({
               <span className="mw-badge">📍 Mesa {mesa}</span>
               <h2>¡Bienvenido a Acuarius!</h2>
               <p>Estás en la mesa {mesa}. Arma tu pedido desde tu celular, sin esperar al mesero.</p>
-              <a href="#menu" className="btn btn-primary">Ver la carta</a>
+              <a href={`/menu?mesa=${mesa}`} className="btn btn-primary">Ver la carta</a>
             </div>
           </section>
         )}
@@ -44,7 +44,7 @@ export default async function Home({
               <h1>Buenos momentos,<br /><span className="accent">servidos a tu ritmo.</span></h1>
               <p className="lead">Café de origen, tés, jugos prensados en frío, postres de autor, coctelería y cerveza artesanal. Seis mundos, una misma barra.</p>
               <div className="hero-actions">
-                <a href="#menu" className="btn btn-primary">Ver el menú</a>
+                <a href="/menu" className="btn btn-primary">Ver el menú</a>
                 <a href="#flowmatch" className="btn btn-ghost">Descubre tu bebida ideal</a>
               </div>
               <div className="hero-tags">
@@ -61,15 +61,15 @@ export default async function Home({
           </div>
         </section>
 
-        {/* MENU */}
+        {/* MENU (resumen) */}
         <section className="section menu-band" id="menu">
           <div className="wrap">
             <div className="section-head">
               <span className="eyebrow">La carta</span>
               <h2>Una barra, seis mundos por explorar</h2>
-              <p>Toca una categoría para filtrar, arma tu pedido y envíalo.</p>
+              <p>Explora nuestras categorías y descubre la carta completa.</p>
             </div>
-            <MenuBlock table={mesa} />
+            <MenuSummary />
           </div>
         </section>
 

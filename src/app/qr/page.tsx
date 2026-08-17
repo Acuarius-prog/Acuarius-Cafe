@@ -11,7 +11,7 @@ export default function QRPage() {
     const origin = window.location.origin;
     Promise.all(
       Array.from({ length: 15 }, (_, i) => i + 1).map(async (n) => {
-        const url = `${origin}/?mesa=${n}`;
+        const url = `${origin}/menu?mesa=${n}`;
         const img = await QRCode.toDataURL(url, {
           width: 320,
           margin: 1,
