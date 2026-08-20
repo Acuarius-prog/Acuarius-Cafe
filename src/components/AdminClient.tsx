@@ -206,6 +206,31 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     setNewAdminEmail("");
   };
 
+  const deleteOrder = async (o: Order) => {
+    if (!confirm("¿Estás seguro de eliminar este pedido? Esta acción no se puede deshacer.")) return;
+    const { data, error } = await supabase.rpc("delete_order", { p_order_id: o.id });
+    if (error) { flash("Error: " + error.message); return; }
+    const res = data as { ok: boolean; error?: string };
+    if (!res.ok) { flash(res.error || "No se pudo eliminar."); return; }
+    flash("Pedido eliminado ✓"); await loadAll();
+  };
+  const deleteReservation = async (r: Reservation) => {
+    if (!confirm("¿Estás seguro de eliminar esta reserva? Esta acción no se puede deshacer.")) return;
+    const { data, error } = await supabase.rpc("delete_reservation", { p_id: r.id });
+    if (error) { flash("Error: " + error.message); return; }
+    const res = data as { ok: boolean; error?: string };
+    if (!res.ok) { flash(res.error || "No se pudo eliminar."); return; }
+    flash("Reserva eliminada ✓"); await loadAll();
+  };
+  const deleteClient = async (c: Client) => {
+    if (!confirm("¿Estás seguro de eliminar a este cliente? Se borrarán sus puntos e historial de Flow. Esta acción no se puede deshacer.")) return;
+    const { data, error } = await supabase.rpc("delete_client", { p_id: c.id });
+    if (error) { flash("Error: " + error.message); return; }
+    const res = data as { ok: boolean; error?: string };
+    if (!res.ok) { flash(res.error || "No se pudo eliminar."); return; }
+    flash("Cliente eliminado ✓"); await loadAll();
+  };
+
   const advanceOrder = async (o: Order) => {
     const i = ORDER_STATES.indexOf(o.status);
     if (i < 0 || i >= ORDER_STATES.length - 1) return;
@@ -377,6 +402,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
                   <div className="oc-actions">
                     <button className="admin-btn sm danger" onClick={() => cancelOrder(o)}>Cancelar</button>
                     <button className="admin-btn sm primary" onClick={() => advanceOrder(o)}>{o.status === "listo" ? "Entregar ✓" : "Avanzar →"}</button>
+                    <button className="admin-btn sm ghost" onClick={() => deleteOrder(o)} title="Eliminar">🗑</button>
                   </div>
                 </div>
               </div>
@@ -385,8 +411,8 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           <div className="admin-card">
             <h2 className="admin-h2">Historial (entregados)</h2>
             {orders.filter((o) => o.status === "entregado").length === 0 ? <p className="admin-muted">Sin pedidos entregados aún.</p> :
-              <table className="adm-table2"><thead><tr><th>Pedido</th><th>Total</th><th>Fecha</th></tr></thead>
-                <tbody>{orders.filter((o) => o.status === "entregado").slice(0, 20).map((o) => (<tr key={o.id}><td>#{o.id.slice(0, 6)}</td><td>{cop(o.total)}</td><td>{fmtDate(o.created_at)}</td></tr>))}</tbody></table>}
+              <table className="adm-table2"><thead><tr><th>Pedido</th><th>Total</th><th>Fecha</th><th></th></tr></thead>
+                <tbody>{orders.filter((o) => o.status === "entregado").slice(0, 20).map((o) => (<tr key={o.id}><td>#{o.id.slice(0, 6)}</td><td>{cop(o.total)}</td><td>{fmtDate(o.created_at)}</td><td><button className="admin-btn sm danger" onClick={() => deleteOrder(o)}>Eliminar</button></td></tr>))}</tbody></table>}
           </div>
         </>)}
 
@@ -496,7 +522,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
                 <tbody>{reservations.map((r) => (
                   <tr key={r.id}><td>{fmtDate(r.reserved_at)}</td><td>{r.reservation_zones?.name ?? "—"}</td><td>{r.party_size}</td>
                     <td><span className={"st st-" + (r.status === "confirmada" ? "listo" : r.status === "cancelada" ? "cancelado" : "nuevo")}>{r.status}</span></td>
-                    <td className="am-actions"><button className="admin-btn sm primary" onClick={() => setResStatus(r, "confirmada")}>Confirmar</button><button className="admin-btn sm danger" onClick={() => setResStatus(r, "cancelada")}>Cancelar</button></td></tr>
+                    <td className="am-actions"><button className="admin-btn sm primary" onClick={() => setResStatus(r, "confirmada")}>Confirmar</button><button className="admin-btn sm danger" onClick={() => setResStatus(r, "cancelada")}>Cancelar</button><button className="admin-btn sm ghost" onClick={() => deleteReservation(r)} title="Eliminar">🗑</button></td></tr>
                 ))}</tbody></table>
             )}
           </div>
@@ -616,8 +642,8 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
           <h1 className="adm-title">Clientes Flow</h1>
           <div className="admin-card">
             {clients.length === 0 ? <p className="admin-muted">Aún no hay clientes registrados.</p> : (
-              <table className="adm-table2"><thead><tr><th>Nombre</th><th>Rol</th><th>Nivel</th><th>Puntos</th></tr></thead>
-                <tbody>{clients.map((c) => (<tr key={c.id}><td>{c.full_name || "—"}</td><td>{c.role}</td><td>{c.flow_tier}</td><td style={{ fontWeight: 700 }}>{c.flow_points}</td></tr>))}</tbody></table>
+              <table className="adm-table2"><thead><tr><th>Nombre</th><th>Rol</th><th>Nivel</th><th>Puntos</th><th></th></tr></thead>
+                <tbody>{clients.map((c) => (<tr key={c.id}><td>{c.full_name || "—"}</td><td>{c.role}</td><td>{c.flow_tier}</td><td style={{ fontWeight: 700 }}>{c.flow_points}</td><td>{c.role !== "admin" && c.role !== "superadmin" && <button className="admin-btn sm danger" onClick={() => deleteClient(c)}>Eliminar</button>}</td></tr>))}</tbody></table>
             )}
           </div>
         </>)}
