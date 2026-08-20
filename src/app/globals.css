@@ -892,3 +892,34 @@ html{scroll-behavior:smooth}
   .page-anim{animation:none}
   .page-veil{display:none}
 }
+
+/* ============ Enredaderas decorativas laterales ============ */
+.vines-wrap{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.vine{position:absolute;top:0;height:100vh;width:130px;opacity:.6}
+.vine-left{left:0}
+.vine-right{right:0}
+.vine-stem{fill:none;stroke:#3f6b34;stroke-width:3.4;stroke-linecap:round;
+  stroke-dasharray:1400;stroke-dashoffset:1400;animation:vineGrow 3s ease forwards .2s;opacity:.7}
+.vine-leaf ellipse{fill:#3f6b34;opacity:0;transform-box:fill-box;transform-origin:center;
+  animation:leafPop .8s cubic-bezier(.22,1,.36,1) var(--d,0s) forwards,
+            leafSway 5s ease-in-out calc(var(--d,0s) + .8s) infinite}
+@keyframes vineGrow{to{stroke-dashoffset:0}}
+@keyframes leafPop{from{opacity:0;transform:scale(0)}to{opacity:.85;transform:scale(1)}}
+@keyframes leafSway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+
+/* En móvil, más sutiles y angostas para no estorbar */
+@media (max-width:900px){
+  .vine{width:64px;opacity:.32}
+}
+@media (max-width:600px){
+  .vine{width:42px;opacity:.22}
+}
+
+/* Respeta reducir movimiento: se ven pero sin animación */
+@media (prefers-reduced-motion: reduce){
+  .vine-stem{stroke-dashoffset:0;animation:none}
+  .vine-leaf ellipse{opacity:.85;animation:none}
+}
+
+/* Asegurar que el contenido quede por encima de las enredaderas */
+.topstrip,nav,main,footer{position:relative;z-index:1}
