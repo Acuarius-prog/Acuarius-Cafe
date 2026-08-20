@@ -729,13 +729,25 @@
 @keyframes spinHalo{to{transform:rotate(360deg)}}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 
-/* destello diagonal periódico sobre el aro */
+/* Punto de luz dorada que ORBITA el aro del logo + resplandor que respira */
 .hero-visual::after{
-  content:"";position:absolute;top:8%;left:8%;width:84%;height:84%;border-radius:50%;pointer-events:none;
-  background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.65) 48%,transparent 60%);
-  transform:translateX(-120%) rotate(8deg);animation:shine 5.5s ease-in-out infinite;mix-blend-mode:overlay;
+  content:"";position:absolute;top:50%;left:50%;width:min(78%,340px);aspect-ratio:1;border-radius:50%;pointer-events:none;
+  transform:translate(-50%,-50%);z-index:3;
+  background:
+    radial-gradient(circle at 50% 4%,rgba(255,240,200,.95) 0%,rgba(231,178,76,.7) 18%,transparent 42%);
+  animation:orbitLight 6s linear infinite;
+  filter:drop-shadow(0 0 10px rgba(231,178,76,.8));mix-blend-mode:screen;
 }
-@keyframes shine{0%,60%{transform:translateX(-120%) rotate(8deg)}80%,100%{transform:translateX(120%) rotate(8deg)}}
+@keyframes orbitLight{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* resplandor dorado que "respira" alrededor del logo */
+.hero-visual::before{
+  content:"";position:absolute;top:50%;left:50%;width:min(86%,370px);aspect-ratio:1;border-radius:50%;pointer-events:none;
+  transform:translate(-50%,-50%);z-index:0;
+  box-shadow:0 0 60px 10px rgba(231,178,76,.35),inset 0 0 40px rgba(231,178,76,.15);
+  animation:breatheGlow 4.5s ease-in-out infinite;
+}
+@keyframes breatheGlow{0%,100%{opacity:.45;transform:translate(-50%,-50%) scale(.98)}50%{opacity:.85;transform:translate(-50%,-50%) scale(1.02)}}
 
 /* --- Badges flotantes --- */
 .badge.b1{animation:floaty 5s ease-in-out infinite}
@@ -791,7 +803,7 @@
 /* --- Respeta a quien prefiere menos movimiento --- */
 @media (prefers-reduced-motion: reduce){
   .reveal{opacity:1;transform:none;transition:none}
-  .ring::before,.ring img,.hero-visual::after,.badge.b1,.badge.b2,.hero-glow,
+  .ring::before,.ring img,.hero-visual::after,.hero-visual::before,.badge.b1,.badge.b2,.hero-glow,
   .tienda-hero::before,.btn-primary,.lvl.oro::after,.topstrip::after,.reserva-form::before{animation:none}
 }
 
