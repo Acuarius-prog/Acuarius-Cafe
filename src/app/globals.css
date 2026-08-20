@@ -893,39 +893,6 @@ html{scroll-behavior:smooth}
   .page-veil{display:none}
 }
 
-/* ============ Ramas de olivo decorativas laterales ============ */
-.vines-wrap{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.olive-branch{position:absolute;top:0;height:100vh;width:170px}
-.ob-left{left:0}
-.ob-right{right:0}
-.ob-stem{fill:none;stroke:#3a5f2b;stroke-width:5;stroke-linecap:round;
-  stroke-dasharray:1600;stroke-dashoffset:1600;animation:obGrow 3.2s ease forwards .2s}
-@keyframes obGrow{to{stroke-dashoffset:0}}
-
-/* hojas: aparecen escalonadas (--d) y luego se mecen */
-.ol-leaf{opacity:0;transform:scale(.2);
-  animation:olLeafPop .7s cubic-bezier(.22,1,.36,1) var(--d,0s) forwards,
-            olSway 5.5s ease-in-out calc(var(--d,0s) + .7s) infinite}
-@keyframes olLeafPop{to{opacity:1;transform:scale(1)}}
-@keyframes olSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-
-/* aceitunas: aparecen con un pequeño rebote */
-.ol-olive{opacity:0;transform:scale(0);
-  animation:olFruitPop .6s cubic-bezier(.34,1.56,.64,1) var(--d,0s) forwards}
-@keyframes olFruitPop{to{opacity:1;transform:scale(1)}}
-
-/* tamaños responsivos */
-@media (max-width:900px){.olive-branch{width:100px}}
-@media (max-width:600px){.olive-branch{width:66px;opacity:.85}}
-
-@media (prefers-reduced-motion: reduce){
-  .ob-stem{stroke-dashoffset:0;animation:none}
-  .ol-leaf,.ol-olive{opacity:1;transform:none;animation:none}
-}
-
-/* el contenido por encima de las ramas */
-.topstrip,nav,main,footer{position:relative;z-index:1}
-
 /* ============ Botón de sonido ambiente ============ */
 .ambient-btn{
   position:fixed;right:18px;bottom:18px;z-index:50;
@@ -944,30 +911,22 @@ html{scroll-behavior:smooth}
 @keyframes sndWave{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.3)}}
 @media (prefers-reduced-motion: reduce){.ambient-wave i{animation:none}}
 
-/* ============ Marco de olivo del hero (esquinas) ============ */
-.hero{position:relative}
-.hero-frame{position:absolute;inset:0;pointer-events:none;z-index:1}
-.hf-corner{position:absolute;width:180px;height:180px}
-.hf-tl{top:8px;left:8px}
-.hf-tr{top:8px;right:8px;transform:scaleX(-1)}
-.hf-bl{bottom:8px;left:8px;transform:scaleY(-1)}
-.hf-br{bottom:8px;right:8px;transform:scale(-1,-1)}
-.hf-stem{fill:none;stroke:#3a5f2b;stroke-width:3;stroke-linecap:round;
-  stroke-dasharray:700;stroke-dashoffset:700;animation:hfGrow 2s ease forwards .2s}
-@keyframes hfGrow{to{stroke-dashoffset:0}}
-.hf-leaf{opacity:0;transform:scale(.2);
-  animation:hfLeafPop .6s cubic-bezier(.22,1,.36,1) var(--d,0s) forwards,
-            hfSway 5s ease-in-out calc(var(--d,0s) + .6s) infinite}
-@keyframes hfLeafPop{to{opacity:1;transform:scale(1)}}
-@keyframes hfSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-.hf-olive{opacity:0;transform:scale(0);
-  animation:hfFruitPop .6s cubic-bezier(.34,1.56,.64,1) var(--d,0s) forwards}
-@keyframes hfFruitPop{to{opacity:1;transform:scale(1)}}
 
-@media (max-width:768px){.hf-corner{width:110px;height:110px}}
-@media (max-width:480px){.hf-corner{width:78px;height:78px;opacity:.9}}
-
-@media (prefers-reduced-motion: reduce){
-  .hf-stem{stroke-dashoffset:0;animation:none}
-  .hf-leaf,.hf-olive{opacity:1;transform:none;animation:none}
+/* ============ Corona de laurel dorada (envuelve el logo) ============ */
+.hero-visual{position:relative}
+.hero-corona{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);
+  width:126%;max-width:none;height:auto;pointer-events:none;z-index:2;
+  filter:drop-shadow(0 6px 18px rgba(180,140,40,.28));
+  animation:coronaIn 1.6s cubic-bezier(.22,1,.36,1) both;
 }
+@keyframes coronaIn{
+  0%{opacity:0;transform:translate(-50%,-52%) scale(.82) rotate(-6deg)}
+  100%{opacity:1;transform:translate(-50%,-52%) scale(1) rotate(0deg)}
+}
+/* leve balanceo continuo, muy sutil */
+.hero-corona{animation:coronaIn 1.6s cubic-bezier(.22,1,.36,1) both, coronaFloat 7s ease-in-out 1.6s infinite}
+@keyframes coronaFloat{0%,100%{transform:translate(-50%,-52%) scale(1) rotate(-1.2deg)}50%{transform:translate(-50%,-52%) scale(1.01) rotate(1.2deg)}}
+
+@media (max-width:768px){.hero-corona{width:120%}}
+@media (prefers-reduced-motion: reduce){.hero-corona{animation:none}}

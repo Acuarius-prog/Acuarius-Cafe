@@ -1,7 +1,6 @@
 import Nav from "@/components/Nav";
 import MenuSummary from "@/components/MenuSummary";
 import ReservaForm from "@/components/ReservaForm";
-import HeroFrame from "@/components/HeroFrame";
 import FlowMatch from "@/components/FlowMatch";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +38,6 @@ export default async function Home({
         {/* HERO */}
         <section className="hero">
           <div className="hero-glow" aria-hidden="true"></div>
-          <HeroFrame />
           <div className="wrap hero-grid">
             <div className="hero-copy">
               <span className="eyebrow">Café de especialidad</span>
@@ -54,6 +52,7 @@ export default async function Home({
               </div>
             </div>
             <div className="hero-visual">
+              <img src="/corona.png" alt="" className="hero-corona" aria-hidden="true" />
               <div className="ring">
                 <img src="/logo.jpg" alt="Logo de Acuarius Café & Sabores" width={430} height={430} />
               </div>
