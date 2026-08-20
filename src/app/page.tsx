@@ -24,6 +24,7 @@ export default async function Home({
       <Nav />
 
       <main id="top">
+        <div className="home-leaf-bg" aria-hidden="true"></div>
         {mesa && (
           <section className="mesa-welcome">
             <div className="wrap">
@@ -52,7 +53,6 @@ export default async function Home({
               </div>
             </div>
             <div className="hero-visual">
-              <img src="/corona.png" alt="" className="hero-corona" aria-hidden="true" />
               <div className="ring">
                 <img src="/logo.jpg" alt="Logo de Acuarius Café & Sabores" width={430} height={430} />
               </div>

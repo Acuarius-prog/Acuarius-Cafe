@@ -912,21 +912,15 @@ html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){.ambient-wave i{animation:none}}
 
 
-/* ============ Corona de laurel dorada (envuelve el logo) ============ */
-.hero-visual{position:relative}
-.hero-corona{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);
-  width:126%;max-width:none;height:auto;pointer-events:none;z-index:2;
-  filter:drop-shadow(0 6px 18px rgba(180,140,40,.28));
-  animation:coronaIn 1.6s cubic-bezier(.22,1,.36,1) both;
-}
-@keyframes coronaIn{
-  0%{opacity:0;transform:translate(-50%,-52%) scale(.82) rotate(-6deg)}
-  100%{opacity:1;transform:translate(-50%,-52%) scale(1) rotate(0deg)}
-}
-/* leve balanceo continuo, muy sutil */
-.hero-corona{animation:coronaIn 1.6s cubic-bezier(.22,1,.36,1) both, coronaFloat 7s ease-in-out 1.6s infinite}
-@keyframes coronaFloat{0%,100%{transform:translate(-50%,-52%) scale(1) rotate(-1.2deg)}50%{transform:translate(-50%,-52%) scale(1.01) rotate(1.2deg)}}
 
-@media (max-width:768px){.hero-corona{width:120%}}
-@media (prefers-reduced-motion: reduce){.hero-corona{animation:none}}
+/* ============ Marco de hojas de fondo (solo home, suave) ============ */
+.home-leaf-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url('/marco-hojas.jpg');
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+  mix-blend-mode:multiply;opacity:.22;
+}
+/* el contenido de la home por encima del fondo */
+main#top > *:not(.home-leaf-bg){position:relative;z-index:1}
+@media (max-width:768px){.home-leaf-bg{opacity:.16}}
+@media (prefers-reduced-motion: reduce){.home-leaf-bg{}}
