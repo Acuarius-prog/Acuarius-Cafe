@@ -414,6 +414,23 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
               <table className="adm-table2"><thead><tr><th>Pedido</th><th>Total</th><th>Fecha</th><th></th></tr></thead>
                 <tbody>{orders.filter((o) => o.status === "entregado").slice(0, 20).map((o) => (<tr key={o.id}><td>#{o.id.slice(0, 6)}</td><td>{cop(o.total)}</td><td>{fmtDate(o.created_at)}</td><td><button className="admin-btn sm danger" onClick={() => deleteOrder(o)}>Eliminar</button></td></tr>))}</tbody></table>}
           </div>
+          <div className="admin-card">
+            <h2 className="admin-h2">Todos los pedidos ({orders.length})</h2>
+            <p className="admin-muted" style={{ marginBottom: 12 }}>Aquí ves todos los pedidos, incluidos los cancelados. Útil para limpiar pruebas.</p>
+            {orders.length === 0 ? <p className="admin-muted">No hay pedidos.</p> : (
+              <table className="adm-table2"><thead><tr><th>Pedido</th><th>Origen</th>{isAdmin && <th>Total</th>}<th>Estado</th><th>Fecha</th><th></th></tr></thead>
+                <tbody>{orders.map((o) => (
+                  <tr key={o.id}>
+                    <td>#{o.id.slice(0, 6)}</td>
+                    <td>{o.table_number ? "Mesa " + o.table_number : o.channel}</td>
+                    {isAdmin && <td>{cop(o.total)}</td>}
+                    <td><span className={"st st-" + o.status}>{STATE_LABEL[o.status] || o.status}</span></td>
+                    <td>{fmtDate(o.created_at)}</td>
+                    <td><button className="admin-btn sm danger" onClick={() => deleteOrder(o)}>Eliminar</button></td>
+                  </tr>
+                ))}</tbody></table>
+            )}
+          </div>
         </>)}
 
         {visibleSection === "menu" && (<>
