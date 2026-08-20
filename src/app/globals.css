@@ -917,10 +917,9 @@ html{scroll-behavior:smooth}
 .home-leaf-bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:url('/marco-hojas.jpg');
-  background-size:cover;background-position:center;background-repeat:no-repeat;
-  mix-blend-mode:multiply;opacity:.22;
+  background-size:contain;background-position:center;background-repeat:no-repeat;
+  mix-blend-mode:multiply;opacity:.28;
 }
 /* el contenido de la home por encima del fondo */
 main#top > *:not(.home-leaf-bg){position:relative;z-index:1}
-@media (max-width:768px){.home-leaf-bg{opacity:.16}}
-@media (prefers-reduced-motion: reduce){.home-leaf-bg{}}
+@media (max-width:768px){.home-leaf-bg{opacity:.2}}
