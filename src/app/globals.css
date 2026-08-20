@@ -943,3 +943,31 @@ html{scroll-behavior:smooth}
 .ambient-wave i:nth-child(3){height:8px;animation-delay:.4s}
 @keyframes sndWave{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.3)}}
 @media (prefers-reduced-motion: reduce){.ambient-wave i{animation:none}}
+
+/* ============ Marco de olivo del hero (esquinas) ============ */
+.hero{position:relative}
+.hero-frame{position:absolute;inset:0;pointer-events:none;z-index:1}
+.hf-corner{position:absolute;width:180px;height:180px}
+.hf-tl{top:8px;left:8px}
+.hf-tr{top:8px;right:8px;transform:scaleX(-1)}
+.hf-bl{bottom:8px;left:8px;transform:scaleY(-1)}
+.hf-br{bottom:8px;right:8px;transform:scale(-1,-1)}
+.hf-stem{fill:none;stroke:#3a5f2b;stroke-width:3;stroke-linecap:round;
+  stroke-dasharray:700;stroke-dashoffset:700;animation:hfGrow 2s ease forwards .2s}
+@keyframes hfGrow{to{stroke-dashoffset:0}}
+.hf-leaf{opacity:0;transform:scale(.2);
+  animation:hfLeafPop .6s cubic-bezier(.22,1,.36,1) var(--d,0s) forwards,
+            hfSway 5s ease-in-out calc(var(--d,0s) + .6s) infinite}
+@keyframes hfLeafPop{to{opacity:1;transform:scale(1)}}
+@keyframes hfSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.hf-olive{opacity:0;transform:scale(0);
+  animation:hfFruitPop .6s cubic-bezier(.34,1.56,.64,1) var(--d,0s) forwards}
+@keyframes hfFruitPop{to{opacity:1;transform:scale(1)}}
+
+@media (max-width:768px){.hf-corner{width:110px;height:110px}}
+@media (max-width:480px){.hf-corner{width:78px;height:78px;opacity:.9}}
+
+@media (prefers-reduced-motion: reduce){
+  .hf-stem{stroke-dashoffset:0;animation:none}
+  .hf-leaf,.hf-olive{opacity:1;transform:none;animation:none}
+}
