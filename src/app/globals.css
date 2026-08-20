@@ -893,33 +893,53 @@ html{scroll-behavior:smooth}
   .page-veil{display:none}
 }
 
-/* ============ Enredaderas decorativas laterales ============ */
+/* ============ Ramas de olivo decorativas laterales ============ */
 .vines-wrap{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.vine{position:absolute;top:0;height:100vh;width:130px;opacity:.6}
-.vine-left{left:0}
-.vine-right{right:0}
-.vine-stem{fill:none;stroke:#3f6b34;stroke-width:3.4;stroke-linecap:round;
-  stroke-dasharray:1400;stroke-dashoffset:1400;animation:vineGrow 3s ease forwards .2s;opacity:.7}
-.vine-leaf ellipse{fill:#3f6b34;opacity:0;transform-box:fill-box;transform-origin:center;
-  animation:leafPop .8s cubic-bezier(.22,1,.36,1) var(--d,0s) forwards,
-            leafSway 5s ease-in-out calc(var(--d,0s) + .8s) infinite}
-@keyframes vineGrow{to{stroke-dashoffset:0}}
-@keyframes leafPop{from{opacity:0;transform:scale(0)}to{opacity:.85;transform:scale(1)}}
-@keyframes leafSway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.olive-branch{position:absolute;top:0;height:100vh;width:170px}
+.ob-left{left:0}
+.ob-right{right:0}
+.ob-stem{fill:none;stroke:#3a5f2b;stroke-width:5;stroke-linecap:round;
+  stroke-dasharray:1600;stroke-dashoffset:1600;animation:obGrow 3.2s ease forwards .2s}
+@keyframes obGrow{to{stroke-dashoffset:0}}
 
-/* En móvil, más sutiles y angostas para no estorbar */
-@media (max-width:900px){
-  .vine{width:64px;opacity:.32}
-}
-@media (max-width:600px){
-  .vine{width:42px;opacity:.22}
-}
+/* hojas: aparecen escalonadas (--d) y luego se mecen */
+.ol-leaf{opacity:0;transform:scale(.2);
+  animation:olLeafPop .7s cubic-bezier(.22,1,.36,1) var(--d,0s) forwards,
+            olSway 5.5s ease-in-out calc(var(--d,0s) + .7s) infinite}
+@keyframes olLeafPop{to{opacity:1;transform:scale(1)}}
+@keyframes olSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 
-/* Respeta reducir movimiento: se ven pero sin animación */
+/* aceitunas: aparecen con un pequeño rebote */
+.ol-olive{opacity:0;transform:scale(0);
+  animation:olFruitPop .6s cubic-bezier(.34,1.56,.64,1) var(--d,0s) forwards}
+@keyframes olFruitPop{to{opacity:1;transform:scale(1)}}
+
+/* tamaños responsivos */
+@media (max-width:900px){.olive-branch{width:100px}}
+@media (max-width:600px){.olive-branch{width:66px;opacity:.85}}
+
 @media (prefers-reduced-motion: reduce){
-  .vine-stem{stroke-dashoffset:0;animation:none}
-  .vine-leaf ellipse{opacity:.85;animation:none}
+  .ob-stem{stroke-dashoffset:0;animation:none}
+  .ol-leaf,.ol-olive{opacity:1;transform:none;animation:none}
 }
 
-/* Asegurar que el contenido quede por encima de las enredaderas */
+/* el contenido por encima de las ramas */
 .topstrip,nav,main,footer{position:relative;z-index:1}
+
+/* ============ Botón de sonido ambiente ============ */
+.ambient-btn{
+  position:fixed;right:18px;bottom:18px;z-index:50;
+  display:flex;align-items:center;gap:8px;
+  width:48px;height:48px;padding:0;border:none;border-radius:50%;cursor:pointer;
+  background:var(--blue);color:#fff;box-shadow:0 8px 24px rgba(10,58,92,.35);
+  transition:width .3s ease,background .3s,transform .2s;overflow:hidden;justify-content:center
+}
+.ambient-btn:hover{transform:translateY(-2px)}
+.ambient-btn.on{width:78px;background:var(--olive);justify-content:flex-start;padding-left:14px}
+.ambient-ico{display:flex;flex:none}
+.ambient-wave{display:flex;align-items:center;gap:3px;margin-left:2px}
+.ambient-wave i{width:3px;height:10px;background:#fff;border-radius:2px;animation:sndWave 1s ease-in-out infinite}
+.ambient-wave i:nth-child(2){height:16px;animation-delay:.2s}
+.ambient-wave i:nth-child(3){height:8px;animation-delay:.4s}
+@keyframes sndWave{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.3)}}
+@media (prefers-reduced-motion: reduce){.ambient-wave i{animation:none}}

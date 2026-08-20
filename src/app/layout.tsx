@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Animations from "@/components/Animations";
 import Vines from "@/components/Vines";
+import AmbientSound from "@/components/AmbientSound";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export default function RootLayout({
         />
       </head>
       <body>{children}
-        <Vines /><Animations /><PWARegister /></body>
+        <Vines /><Animations /><AmbientSound /><PWARegister /></body>
     </html>
   );
 }
