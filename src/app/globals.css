@@ -916,10 +916,10 @@ html{scroll-behavior:smooth}
 /* ============ Marco de hojas de fondo (solo home, suave) ============ */
 .home-leaf-bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:url('/marco-hojas.jpg');
-  background-size:contain;background-position:center;background-repeat:no-repeat;
-  mix-blend-mode:multiply;opacity:.28;
+  background-image:url('/marco-lineas.png');
+  background-size:100% 100%;background-position:center;background-repeat:no-repeat;
+  opacity:.5;
 }
 /* el contenido de la home por encima del fondo */
 main#top > *:not(.home-leaf-bg){position:relative;z-index:1}
-@media (max-width:768px){.home-leaf-bg{opacity:.2}}
+@media (max-width:768px){.home-leaf-bg{background-size:cover;opacity:.35}}
