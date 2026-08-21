@@ -24,7 +24,12 @@ export default async function Home({
       <Nav />
 
       <main id="top">
-        <div className="home-leaf-bg" aria-hidden="true"></div>
+        <div className="home-corners" aria-hidden="true">
+          <img src="/esq-tl.png" className="hc hc-tl" alt="" />
+          <img src="/esq-tr.png" className="hc hc-tr" alt="" />
+          <img src="/esq-bl.png" className="hc hc-bl" alt="" />
+          <img src="/esq-br.png" className="hc hc-br" alt="" />
+        </div>
         {mesa && (
           <section className="mesa-welcome">
             <div className="wrap">

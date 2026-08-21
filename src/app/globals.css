@@ -913,13 +913,13 @@ html{scroll-behavior:smooth}
 
 
 
-/* ============ Marco de hojas de fondo (solo home, suave) ============ */
-.home-leaf-bg{
-  position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:url('/marco-lineas.png');
-  background-size:100% 100%;background-position:center;background-repeat:no-repeat;
-  opacity:.5;
-}
-/* el contenido de la home por encima del fondo */
-main#top > *:not(.home-leaf-bg){position:relative;z-index:1}
-@media (max-width:768px){.home-leaf-bg{background-size:cover;opacity:.35}}
+/* ============ Esquinas decorativas (solo home, elegantes) ============ */
+.home-corners{position:fixed;inset:0;z-index:0;pointer-events:none}
+.hc{position:absolute;width:230px;height:auto;opacity:.5}
+.hc-tl{top:0;left:0}
+.hc-tr{top:0;right:0}
+.hc-bl{bottom:0;left:0}
+.hc-br{bottom:0;right:0}
+main#top > *:not(.home-corners){position:relative;z-index:1}
+@media (max-width:768px){.hc{width:130px;opacity:.4}}
+@media (max-width:480px){.hc{width:92px;opacity:.35}}
