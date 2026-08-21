@@ -1,5 +1,6 @@
 import Nav from "@/components/Nav";
 import { getSupabase } from "@/lib/supabase/server";
+import Corners from "@/components/Corners";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Acuarius · Tienda" };
@@ -26,6 +27,7 @@ export default async function TiendaPage() {
       <Nav />
       <main className="tienda-page">
         <section className="tienda-hero">
+          <Corners />
           <div className="wrap" style={{ textAlign: "center" }}>
             <a href="/" className="flow-back light">← Volver al inicio</a>
             <span className="eyebrow" style={{ justifyContent: "center", color: "var(--gold)" }}>Tienda online</span>
@@ -35,6 +37,7 @@ export default async function TiendaPage() {
         </section>
 
         <section className="section">
+          <Corners />
           <div className="wrap">
             {products.length === 0 ? (
               <p className="carta-note">Pronto tendremos productos disponibles. Agrégalos desde el panel <code>/admin → Tienda</code>.</p>

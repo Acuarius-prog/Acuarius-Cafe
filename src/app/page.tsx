@@ -1,6 +1,7 @@
 import Nav from "@/components/Nav";
 import MenuSummary from "@/components/MenuSummary";
 import ReservaForm from "@/components/ReservaForm";
+import Corners from "@/components/Corners";
 import FlowMatch from "@/components/FlowMatch";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +70,7 @@ export default async function Home({
 
         {/* MENU (resumen) */}
         <section className="section menu-band" id="menu">
+          <Corners />
           <div className="wrap">
             <div className="section-head">
               <span className="eyebrow">La carta</span>
@@ -81,6 +83,7 @@ export default async function Home({
 
         {/* FLOW MATCH */}
         <section className="section flow-band" id="flowmatch">
+          <Corners />
           <div className="wrap">
             <div className="section-head center">
               <span className="eyebrow" style={{ justifyContent: "center" }}>Flow Match · IA</span>
@@ -93,6 +96,7 @@ export default async function Home({
 
         {/* RESERVAS */}
         <section className="section reserva-band" id="reservas">
+          <Corners />
           <div className="wrap reserva-grid2">
             <div className="reserva-intro">
               <span className="eyebrow">Reservas en tiempo real</span>
@@ -112,6 +116,7 @@ export default async function Home({
 
         {/* VISITANOS */}
         <section className="section visita-band" id="visitanos">
+          <Corners />
           <div className="wrap visita-grid">
             <div className="visita-photo">
               <img src="/local.jpg" alt="Fachada e interior de Acuarius Café en Fontibón" width={1200} height={903} />
@@ -136,6 +141,7 @@ export default async function Home({
 
         {/* BANQUITA */}
         <section className="section banca-band" id="banca">
+          <Corners />
           <div className="wrap banca-grid">
             <div className="banca-info">
               <span className="eyebrow">Tu rinconcito</span>

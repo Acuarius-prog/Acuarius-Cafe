@@ -923,3 +923,17 @@ html{scroll-behavior:smooth}
 main#top > *:not(.home-corners){position:relative;z-index:1}
 @media (max-width:768px){.hc{width:130px;opacity:.4}}
 @media (max-width:480px){.hc{width:92px;opacity:.35}}
+
+/* ============ Esquinas decorativas por sección ============ */
+.section{position:relative}
+.tienda-hero,.flow-prog{position:relative}
+.sec-corners{position:absolute;inset:0;pointer-events:none;z-index:0}
+.sec-corners .sc{position:absolute;width:135px;height:auto;opacity:.4}
+.sec-corners .sc-tl{top:6px;left:6px}
+.sec-corners .sc-tr{top:6px;right:6px}
+.sec-corners .sc-bl{bottom:6px;left:6px}
+.sec-corners .sc-br{bottom:6px;right:6px}
+/* el contenido de la sección por encima de las esquinas */
+.section > .wrap,.tienda-hero > .wrap,.flow-prog > .wrap{position:relative;z-index:1}
+@media (max-width:768px){.sec-corners .sc{width:82px;opacity:.32}}
+@media (max-width:480px){.sec-corners .sc{width:60px;opacity:.28}}

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import Corners from "@/components/Corners";
 
 type Profile = { full_name: string | null; flow_points: number; flow_tier: string; total_spent: number };
 type Reward = { id: string; name: string; description: string | null; cost_points: number };
@@ -136,6 +137,7 @@ export default function FlowAccount({ supabaseUrl, supabaseKey }: { supabaseUrl:
   /* ---------- Niveles (explicación del programa) ---------- */
   const LevelsIntro = (
     <section className="section flow-prog" id="programa">
+        <Corners />
       <div className="wrap">
         <div className="section-head center">
           <span className="eyebrow" style={{ justifyContent: "center" }}>Programa de lealtad</span>
