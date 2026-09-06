@@ -206,6 +206,43 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
     setNewAdminEmail("");
   };
 
+  const printReceipt = (o: Order) => {
+    const cop2 = (n: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(n || 0);
+    const fecha = new Date(o.created_at).toLocaleString("es-CO");
+    const dest = o.table_number ? "Mesa " + o.table_number : (o.channel === "domicilio" ? "Domicilio" : o.channel === "para_llevar" ? "Para llevar" : "Local");
+    const items = (o.order_items || []).map((li) => `<tr><td>${li.quantity}×</td><td>${li.name}${li.note ? ' <i>(' + li.note + ')</i>' : ''}</td><td style="text-align:right">${cop2(Number(li.subtotal))}</td></tr>`).join("");
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Recibo #${o.id.slice(0,6)}</title>
+      <style>
+        *{font-family:'Courier New',monospace;color:#000}
+        body{width:280px;margin:0 auto;padding:12px}
+        h2{text-align:center;margin:4px 0;font-size:18px}
+        .sub{text-align:center;font-size:11px;margin-bottom:8px}
+        hr{border:none;border-top:1px dashed #000;margin:8px 0}
+        table{width:100%;font-size:12px;border-collapse:collapse}
+        td{padding:2px 0;vertical-align:top}
+        .tot{font-size:15px;font-weight:bold;text-align:right;margin-top:8px}
+        .meta{font-size:11px;margin:2px 0}
+        .foot{text-align:center;font-size:10px;margin-top:12px}
+      </style></head><body>
+      <h2>ACUARIUS CAFÉ &amp; SABORES</h2>
+      <div class="sub">Buenos momentos, siempre</div>
+      <hr>
+      <div class="meta"><b>Recibo:</b> #${o.id.slice(0,6)}</div>
+      <div class="meta"><b>Fecha:</b> ${fecha}</div>
+      <div class="meta"><b>Tipo:</b> ${dest}</div>
+      ${o.notes ? `<div class="meta"><b>Nota:</b> ${o.notes}</div>` : ""}
+      <hr>
+      <table>${items}</table>
+      <hr>
+      <div class="tot">TOTAL: ${cop2(Number(o.total))}</div>
+      <div class="foot">¡Gracias por tu visita!<br>Este documento no es una factura electrónica.</div>
+      </body></html>`;
+    const w = window.open("", "_blank", "width=360,height=640");
+    if (!w) { flash("Permite las ventanas emergentes para imprimir."); return; }
+    w.document.write(html); w.document.close(); w.focus();
+    setTimeout(() => { w.print(); }, 350);
+  };
+
   const deleteOrder = async (o: Order) => {
     if (!confirm("¿Estás seguro de eliminar este pedido? Esta acción no se puede deshacer.")) return;
     const { data, error } = await supabase.rpc("delete_order", { p_order_id: o.id });
@@ -400,6 +437,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
                 {o.notes && <div className="oc-note">📝 {o.notes}</div>}
                 <div className="oc-foot"><b>{cop(o.total)}</b>
                   <div className="oc-actions">
+                    <button className="admin-btn sm ghost" onClick={() => printReceipt(o)} title="Imprimir recibo">🧾</button>
                     <button className="admin-btn sm danger" onClick={() => cancelOrder(o)}>Cancelar</button>
                     <button className="admin-btn sm primary" onClick={() => advanceOrder(o)}>{o.status === "listo" ? "Entregar ✓" : "Avanzar →"}</button>
                     <button className="admin-btn sm ghost" onClick={() => deleteOrder(o)} title="Eliminar">🗑</button>
@@ -412,7 +450,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
             <h2 className="admin-h2">Historial (entregados)</h2>
             {orders.filter((o) => o.status === "entregado").length === 0 ? <p className="admin-muted">Sin pedidos entregados aún.</p> :
               <table className="adm-table2"><thead><tr><th>Pedido</th><th>Total</th><th>Fecha</th><th></th></tr></thead>
-                <tbody>{orders.filter((o) => o.status === "entregado").slice(0, 20).map((o) => (<tr key={o.id}><td>#{o.id.slice(0, 6)}</td><td>{cop(o.total)}</td><td>{fmtDate(o.created_at)}</td><td><button className="admin-btn sm danger" onClick={() => deleteOrder(o)}>Eliminar</button></td></tr>))}</tbody></table>}
+                <tbody>{orders.filter((o) => o.status === "entregado").slice(0, 20).map((o) => (<tr key={o.id}><td>#{o.id.slice(0, 6)}</td><td>{cop(o.total)}</td><td>{fmtDate(o.created_at)}</td><td><button className="admin-btn sm ghost" onClick={() => printReceipt(o)} title="Recibo">🧾</button> <button className="admin-btn sm danger" onClick={() => deleteOrder(o)}>Eliminar</button></td></tr>))}</tbody></table>}
           </div>
           <div className="admin-card">
             <h2 className="admin-h2">Todos los pedidos ({orders.length})</h2>
@@ -426,7 +464,7 @@ export default function AdminClient({ supabaseUrl, supabaseKey }: { supabaseUrl:
                     {isAdmin && <td>{cop(o.total)}</td>}
                     <td><span className={"st st-" + o.status}>{STATE_LABEL[o.status] || o.status}</span></td>
                     <td>{fmtDate(o.created_at)}</td>
-                    <td><button className="admin-btn sm danger" onClick={() => deleteOrder(o)}>Eliminar</button></td>
+                    <td><button className="admin-btn sm ghost" onClick={() => printReceipt(o)} title="Recibo">🧾</button> <button className="admin-btn sm danger" onClick={() => deleteOrder(o)}>Eliminar</button></td>
                   </tr>
                 ))}</tbody></table>
             )}

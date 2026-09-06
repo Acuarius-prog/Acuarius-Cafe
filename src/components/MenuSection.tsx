@@ -43,6 +43,7 @@ export default function MenuSection({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [channel, setChannel] = useState("local");
+  const [address, setAddress] = useState("");
   const [gnote, setGnote] = useState("");
   const [sending, setSending] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -107,12 +108,16 @@ export default function MenuSection({
       setError("Escribe tu teléfono.");
       return;
     }
+    if (channel === "domicilio" && !address.trim()) {
+      setError("Escribe la dirección de entrega.");
+      return;
+    }
     setSending(true);
     setError("");
     const { data, error } = await supabase.rpc("place_order", {
       p_channel: channel,
       p_customer: { name, phone },
-      p_notes: gnote,
+      p_notes: [channel === "domicilio" && address.trim() ? "🛵 Dirección: " + address.trim() : "", gnote.trim()].filter(Boolean).join(" · "),
       p_table: table ?? null,
       p_user: flowUserId ?? null,
       p_items: lines.map((l) => ({
@@ -270,6 +275,11 @@ export default function MenuSection({
                             <option value="domicilio">Domicilio</option>
                           </select>
                         </label>
+                        {channel === "domicilio" && (
+                          <label>Dirección de entrega
+                            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Dirección, barrio, indicaciones…" />
+                          </label>
+                        )}
                       </>
                     )}
                     <label>Nota general (opcional)
