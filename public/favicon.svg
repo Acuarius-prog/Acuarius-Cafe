@@ -1,0 +1,6 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="112" fill="#b3122b"/>
+  <circle cx="256" cy="232" r="150" fill="none" stroke="#d4a537" stroke-width="10"/>
+  <text x="256" y="272" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="150" fill="#f3ede1" text-anchor="middle">PR</text>
+  <text x="256" y="430" font-family="Arial, sans-serif" font-weight="bold" font-size="46" letter-spacing="4" fill="#d4a537" text-anchor="middle">CARNES</text>
+</svg>
